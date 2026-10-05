@@ -1,0 +1,16 @@
+-- Isolated UI test only. This module is removed after verification.
+local originalNew=Market.New
+function Market.New()
+ local snapshots=game:GetService("HttpService"):JSONDecode(root:WaitForChild("Level2FixtureSnapshot",60).Value)
+ local p=snapshots.First;local self=originalNew(p.Base,true,p)
+ self.Ready=true;self.CanTrade=true;self.Portfolio=p.Portfolio;self.SummaryData=p.Summary
+ self.Positions=p.Positions;self.Orders=p.Orders;self.History=p.History;self.Fills=p.Fills
+ self.Capacity=p.Capacity;self.Limit=p.Limit;self.AccountKey="l2fixture";self.AccountToken="l2fixture"
+ self.DepthAccess={Allowed=true,State="Owned"};self.DepthReceivedAt=os.clock();self.DepthLive=true;self.DepthContract="BX"
+ self.TestSnapshots=snapshots;self.TestRequests={};self.ConnectionStatus="ISOLATED L2 UI TEST"
+ function self:Send(action,req)
+  self.NextId+=1;req=req or{};req.Action=action;table.insert(self.TestRequests,req)
+  return true,"Isolated test",nil,self.NextId
+ end
+ Market.TestSession=self;return self
+end

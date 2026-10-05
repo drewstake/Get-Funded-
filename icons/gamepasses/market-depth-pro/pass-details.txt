@@ -1,0 +1,9 @@
+Name: Market Depth Pro
+Pass ID: 2006894567
+Uploaded icon asset ID: 90643097876584
+
+Description:
+See the liquidity behind the market! Permanently unlock the Level 2 order book with live buy and sell quantities by price, red and green depth bars, best bid, best ask, and spread. Expand it for more detail or collapse it to save space. Displays simulated market liquidity.
+
+Icon: market-depth-pro-v1.png
+Generated using the built-in ImageGen tool.

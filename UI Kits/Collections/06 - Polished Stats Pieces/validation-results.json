@@ -1,0 +1,54 @@
+{
+  "checks": [
+    {
+      "name": "Original aggregate and six metric labels",
+      "passed": true
+    },
+    {
+      "name": "Account dropdown opens and exposes four options",
+      "passed": true
+    },
+    {
+      "name": "Keyboard selection changes scope and matching stats",
+      "passed": true
+    },
+    {
+      "name": "Scope dropdown has independent current and dated modes",
+      "passed": true
+    },
+    {
+      "name": "Escape closes dropdown and restores trigger focus",
+      "passed": true
+    },
+    {
+      "name": "Help opens and closes",
+      "passed": true
+    },
+    {
+      "name": "Reset restores original full scope",
+      "passed": true
+    },
+    {
+      "name": "31 separate transparent assets with valid slice rectangles",
+      "passed": true
+    },
+    {
+      "name": "Every image loads locally",
+      "passed": true
+    },
+    {
+      "name": "Assembled labels stay inside the reference canvas",
+      "passed": true
+    },
+    {
+      "name": "Catalog scales to phone without document overflow",
+      "passed": true
+    },
+    {
+      "name": "No JavaScript errors",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "scope": "Browser example, asset exports, dropdown interactions and layout checks."
+}

@@ -1,0 +1,17 @@
+Generated with the built-in ImageGen tool. Visual concept only; 199 Robux is a suggested placeholder price, and secondary passes are catalog concepts.
+
+Use case: ui-mockup.
+Create a polished, production-quality shop screen concept for the Roblox trading game "Get Funded!". This is a flat, straight-on game interface design, widescreen 16:9, not a photographed monitor, not a web landing page. Make all text crisp, deliberately sized and very easy to read. The existing game uses midnight navy backgrounds (#021131), deep royal blue cards (#05276F), luminous cyan borders, violet selected navigation, lime green action buttons, and chunky rounded Fredoka-like white headings with restrained dark outlines. Preserve that playful premium Roblox simulator identity, with tasteful soft 3D illustrations and smooth glossy surfaces. Avoid overwhelming neon haze.
+
+Layout: narrow left navigation rail with the wordmark "Get Funded!" (white "Get", gold "Funded!") and five generous icon buttons labelled exactly "Trade", "Progress", "Stats", "Leaderboard", "Shop". Shop is selected in purple with a bright violet rim. Small Settings button at the bottom. Wide main area with heading "Shop" and a smaller readable subtitle "Upgrade your trading experience". A small upper-right badge reads "Permanent unlocks".
+
+The main hero product is a large rich blue and violet card with cyan rim. Top-left small tag "FEATURED". Large exact heading "Market Depth Pro". Below it exact one-line description "See the orders behind the market." Three concise well-spaced benefits, with small tasteful icons, read "Live buy & sell orders", "Deeper market view", "Easy-to-read liquidity bars". Bottom-left is a prominent glossy lime-green rounded purchase button with a small Robux-shaped icon and the exact label "199", plus smaller "One-time purchase" beneath. This is an illustrative proposed price in a concept, not a checkout or active purchase.
+Right half of this hero card has a beautiful stylized compact trading terminal illustration: rounded glass-like blue panel with red ask bars above, green bid bars below, small price ladder and a subtle luminous central spread line. Clear visual hierarchy, readable main text is more important than tiny numbers. No stock photos, no humans, no money piles, no crypto logos.
+
+Under the hero are three equal smaller cards as future catalog concepts, with generous padding and strong distinctive artwork:
+1. warm gold crown illustration, title "VIP Trader", description "Stand out in the trading room."
+2. purple and cyan layered display illustration, title "Terminal Themes", description "Give your setup a new look."
+3. cheerful green smiling face and red sad face illustration, title "Trade Reactions", description "Add personality to every trade."
+Each smaller card has a subdued blue rounded "Coming soon" button, no invented price. These future concepts must visually feel secondary to Market Depth Pro.
+
+Use large sharp text, consistent spacing, balanced card proportions, excellent contrast, and strong alignment. Keep generous outer margins but avoid empty wasted space. Subtle tiny stars or geometric diamonds can decorate corners only. No fake ratings, no countdown, no SALE badge, no bundles, no extra products, no chat window, no order ticket, no chart UI behind the shop, no mobile device mockups, no watermark. Render one beautiful cohesive full-screen shop interface, with every card completely inside the frame.

@@ -1,0 +1,35 @@
+[
+  {
+    "name": "04-climb-the-charts.png",
+    "width": 1920,
+    "height": 1080,
+    "format": "png",
+    "space": "srgb",
+    "channels": 3,
+    "palette": false,
+    "bytes": 2365840,
+    "under3MB": true
+  },
+  {
+    "name": "05-bull-or-bear.png",
+    "width": 1920,
+    "height": 1080,
+    "format": "png",
+    "space": "srgb",
+    "channels": 3,
+    "palette": false,
+    "bytes": 2682383,
+    "under3MB": true
+  },
+  {
+    "name": "06-next-level.png",
+    "width": 1920,
+    "height": 1080,
+    "format": "png",
+    "space": "srgb",
+    "channels": 3,
+    "palette": false,
+    "bytes": 2648988,
+    "under3MB": true
+  }
+]

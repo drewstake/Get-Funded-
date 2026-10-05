@@ -1,0 +1,36 @@
+GET FUNDED! / ONE MORE CANDLE
+
+Main post: Get-Funded-One-More-Candle.mp4
+Vertical 1080 x 1920, 30 fps, 16 seconds, H.264 video + AAC stereo audio.
+Ready to upload manually. No social post has been published.
+
+Included:
+- cover.jpg: optional vertical cover
+- caption.txt: suggested post caption
+- previews/contact-sheet.jpg: storyboard overview
+- source/render_clip.py: editable, reproducible animation and audio generator
+- source/original-beat.wav: original 150 BPM beat and game-style sound effects
+- source/render-metadata.json: video specs and staged-trade details
+
+This is a staged animation reconstructed from the current Get Funded! interface,
+not a recording of a live trade. The game files and saved account were not changed.
+Palette and Fredoka font match the game. BX market math follows MarketConfig:
+one contract, $50 per point, $12.50 per tick, 5,825.00 entry to 5,855.00 exit,
+$1,500 virtual profit, $10,000 starting balance to $11,500 after closing.
+
+Edit beats:
+0.0  'me: I'll close at +$100' / already in a small winning trade
+3.2  'also me: let it cook' / profit climbs
+4.8  'wait. don't do this' / short pullback and audio riser
+6.4  'ONE MORE CANDLE' / beat drop, punch-in, rising profit counter
+9.6  'okay this is getting stupid' / rally toward +$1,500
+12.8 'yeah I'm logging off' / close click and realized profit
+15.2 '...after one more' / cursor drifts back to Buy
+
+Music and effects are synthesized specifically for this clip; no sampled song.
+The caption identifies this as the creator's game and the trade as staged.
+
+To rerender on this machine:
+Use the bundled Codex Python interpreter with Pillow and numpy to execute
+source/render_clip.py. The local tools directory contains imageio-ffmpeg.
+For only cover and storyboard previews, append --previews-only.

@@ -1,0 +1,9 @@
+Tool: built-in ImageGen
+
+Use case: ads-marketing.
+Asset type: square Roblox game-pass icon for Get Funded!, for the pass named "Market Depth Pro".
+Create one polished, production-ready square icon, 1024x1024 composition, matching a playful blue-neon trading game UI with chunky rounded Fredoka-like lettering, glossy beveled controls, deep navy surfaces, electric cyan rims, and bright green and pink-red highlights.
+Subject: a single bold, front-facing rounded trading-depth terminal badge. Its face shows a clean stylized order-book motif: a compact stack of translucent red horizontal liquidity bars above a thin cyan spread divider and green horizontal liquidity bars below, with visibly varied bar lengths. These are decorative graphic bars; no numerical prices, invented data, tiny labels, candlestick chart, or screenshot.
+Typography: very large, crisp, raised white rounded "L2" in the upper half, and a smaller but bold gold "PRO" tab integrated at the lower right. Exact text only: "L2" and "PRO". The central L2 must remain instantly legible at small icon size.
+Composition: one centered hero emblem, straight-on with subtle dimensional extrusion, excellent silhouette, generous 10% safe padding on every edge for square or circular cropping. Rich midnight-blue to royal-blue background with a restrained cyan halo and two tiny glossy sparkle accents. Premium toy-like 3D game art, smooth rounded edges, bright controlled reflections, crisp outlines, strong contrast. Keep the image clean and uncluttered.
+Avoid: people, faces, coins, currency or Robux symbols, stacks of cash, profit promises, rockets, arrows suggesting guaranteed gains, watermarks, extra text, thin fonts, busy scenery, photographic realism, and mockup framing outside the icon. Opaque background.

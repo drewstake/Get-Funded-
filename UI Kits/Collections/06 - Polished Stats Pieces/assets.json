@@ -1,0 +1,403 @@
+[
+  {
+    "name": "HeroBackground",
+    "kind": "surface",
+    "svg": "assets/svg/surface-hero-background.svg",
+    "png": "assets/png/surface-hero-background.png",
+    "width": 1200,
+    "height": 320,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      1152,
+      272
+    ],
+    "nativeTemplate": "HeroBackground"
+  },
+  {
+    "name": "CardBackground",
+    "kind": "surface",
+    "svg": "assets/svg/surface-card-background.svg",
+    "png": "assets/png/surface-card-background.png",
+    "width": 880,
+    "height": 530,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      832,
+      482
+    ],
+    "nativeTemplate": "CardBackground"
+  },
+  {
+    "name": "DailyBackground",
+    "kind": "surface",
+    "svg": "assets/svg/surface-daily-background.svg",
+    "png": "assets/png/surface-daily-background.png",
+    "width": 1400,
+    "height": 316,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      1352,
+      268
+    ],
+    "nativeTemplate": "DailyBackground"
+  },
+  {
+    "name": "DropdownBackground",
+    "kind": "surface",
+    "svg": "assets/svg/surface-dropdown-background.svg",
+    "png": "assets/png/surface-dropdown-background.png",
+    "width": 784,
+    "height": 112,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      736,
+      64
+    ],
+    "nativeTemplate": "DropdownBackground"
+  },
+  {
+    "name": "DropdownHover",
+    "kind": "surface",
+    "svg": "assets/svg/surface-dropdown-hover.svg",
+    "png": "assets/png/surface-dropdown-hover.png",
+    "width": 784,
+    "height": 112,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      736,
+      64
+    ],
+    "nativeTemplate": "DropdownHover"
+  },
+  {
+    "name": "DropdownPressed",
+    "kind": "surface",
+    "svg": "assets/svg/surface-dropdown-pressed.svg",
+    "png": "assets/png/surface-dropdown-pressed.png",
+    "width": 784,
+    "height": 112,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      736,
+      64
+    ],
+    "nativeTemplate": "DropdownPressed"
+  },
+  {
+    "name": "DropdownDisabled",
+    "kind": "surface",
+    "svg": "assets/svg/surface-dropdown-disabled.svg",
+    "png": "assets/png/surface-dropdown-disabled.png",
+    "width": 784,
+    "height": 112,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      736,
+      64
+    ],
+    "nativeTemplate": "DropdownDisabled"
+  },
+  {
+    "name": "MenuBackground",
+    "kind": "surface",
+    "svg": "assets/svg/surface-menu-background.svg",
+    "png": "assets/png/surface-menu-background.png",
+    "width": 784,
+    "height": 436,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      736,
+      388
+    ],
+    "nativeTemplate": "MenuBackground"
+  },
+  {
+    "name": "NavDefault",
+    "kind": "surface",
+    "svg": "assets/svg/surface-nav-default.svg",
+    "png": "assets/png/surface-nav-default.png",
+    "width": 460,
+    "height": 126,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      412,
+      78
+    ],
+    "nativeTemplate": "NavDefault"
+  },
+  {
+    "name": "NavSelected",
+    "kind": "surface",
+    "svg": "assets/svg/surface-nav-selected.svg",
+    "png": "assets/png/surface-nav-selected.png",
+    "width": 460,
+    "height": 126,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      412,
+      78
+    ],
+    "nativeTemplate": "NavSelected"
+  },
+  {
+    "name": "AccountBackground",
+    "kind": "surface",
+    "svg": "assets/svg/surface-account-background.svg",
+    "png": "assets/png/surface-account-background.png",
+    "width": 460,
+    "height": 112,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      412,
+      64
+    ],
+    "nativeTemplate": "AccountBackground"
+  },
+  {
+    "name": "ButtonDefault",
+    "kind": "surface",
+    "svg": "assets/svg/surface-button-default.svg",
+    "png": "assets/png/surface-button-default.png",
+    "width": 412,
+    "height": 104,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      364,
+      56
+    ],
+    "nativeTemplate": "ButtonDefault"
+  },
+  {
+    "name": "ButtonPrimary",
+    "kind": "surface",
+    "svg": "assets/svg/surface-button-primary.svg",
+    "png": "assets/png/surface-button-primary.png",
+    "width": 412,
+    "height": 104,
+    "scale": 2,
+    "sliceCenter": [
+      48,
+      48,
+      364,
+      56
+    ],
+    "nativeTemplate": "ButtonPrimary"
+  },
+  {
+    "name": "ProgressTrack",
+    "kind": "surface",
+    "svg": "assets/svg/surface-progress-track.svg",
+    "png": "assets/png/surface-progress-track.png",
+    "width": 784,
+    "height": 42,
+    "scale": 2,
+    "sliceCenter": [
+      22,
+      20,
+      762,
+      22
+    ],
+    "nativeTemplate": "ProgressTrack"
+  },
+  {
+    "name": "ProgressWin",
+    "kind": "surface",
+    "svg": "assets/svg/surface-progress-win.svg",
+    "png": "assets/png/surface-progress-win.png",
+    "width": 392,
+    "height": 42,
+    "scale": 2,
+    "sliceCenter": [
+      22,
+      20,
+      370,
+      22
+    ],
+    "nativeTemplate": "ProgressWin"
+  },
+  {
+    "name": "ProgressLoss",
+    "kind": "surface",
+    "svg": "assets/svg/surface-progress-loss.svg",
+    "png": "assets/png/surface-progress-loss.png",
+    "width": 392,
+    "height": 42,
+    "scale": 2,
+    "sliceCenter": [
+      22,
+      20,
+      370,
+      22
+    ],
+    "nativeTemplate": "ProgressLoss"
+  },
+  {
+    "name": "Trade",
+    "kind": "icon",
+    "svg": "assets/svg/icon-trade.svg",
+    "png": "assets/png/icon-trade.png",
+    "width": 256,
+    "height": 256,
+    "existingRobloxId": "rbxassetid://135864586704544",
+    "provenance": "New vector reconstruction for offline use. Native uses existing game asset ID."
+  },
+  {
+    "name": "Accounts",
+    "kind": "icon",
+    "svg": "assets/svg/icon-accounts.svg",
+    "png": "assets/png/icon-accounts.png",
+    "width": 256,
+    "height": 256,
+    "existingRobloxId": "rbxassetid://80175474742009",
+    "provenance": "New vector reconstruction for offline use. Native uses existing game asset ID."
+  },
+  {
+    "name": "Shop",
+    "kind": "icon",
+    "svg": "assets/svg/icon-shop.svg",
+    "png": "assets/png/icon-shop.png",
+    "width": 256,
+    "height": 256,
+    "existingRobloxId": "rbxassetid://133669386970310",
+    "provenance": "New vector reconstruction for offline use. Native uses existing game asset ID."
+  },
+  {
+    "name": "Stats",
+    "kind": "icon",
+    "svg": "assets/svg/icon-stats.svg",
+    "png": "assets/png/icon-stats.png",
+    "width": 256,
+    "height": 256,
+    "existingRobloxId": "rbxassetid://140314319475475",
+    "provenance": "New vector reconstruction for offline use. Native uses existing game asset ID."
+  },
+  {
+    "name": "Leaderboard",
+    "kind": "icon",
+    "svg": "assets/svg/icon-leaderboard.svg",
+    "png": "assets/png/icon-leaderboard.png",
+    "width": 256,
+    "height": 256,
+    "existingRobloxId": "rbxassetid://80175474742009",
+    "provenance": "New vector reconstruction for offline use. Native uses existing game asset ID."
+  },
+  {
+    "name": "Positions",
+    "kind": "icon",
+    "svg": "assets/svg/icon-positions.svg",
+    "png": "assets/png/icon-positions.png",
+    "width": 256,
+    "height": 256,
+    "existingRobloxId": "rbxassetid://133669386970310",
+    "provenance": "New vector reconstruction for offline use. Native uses existing game asset ID."
+  },
+  {
+    "name": "Review",
+    "kind": "icon",
+    "svg": "assets/svg/icon-review.svg",
+    "png": "assets/png/icon-review.png",
+    "width": 256,
+    "height": 256,
+    "existingRobloxId": "rbxassetid://77222088024812",
+    "provenance": "New vector reconstruction for offline use. Native uses existing game asset ID."
+  },
+  {
+    "name": "Learn",
+    "kind": "icon",
+    "svg": "assets/svg/icon-learn.svg",
+    "png": "assets/png/icon-learn.png",
+    "width": 256,
+    "height": 256,
+    "existingRobloxId": "rbxassetid://103790301090850",
+    "provenance": "New vector reconstruction for offline use. Native uses existing game asset ID."
+  },
+  {
+    "name": "Settings",
+    "kind": "icon",
+    "svg": "assets/svg/icon-settings.svg",
+    "png": "assets/png/icon-settings.png",
+    "width": 256,
+    "height": 256,
+    "existingRobloxId": "rbxassetid://101222726907418",
+    "provenance": "New vector reconstruction for offline use. Native uses existing game asset ID."
+  },
+  {
+    "name": "Help",
+    "kind": "icon",
+    "svg": "assets/svg/icon-help.svg",
+    "png": "assets/png/icon-help.png",
+    "width": 256,
+    "height": 256,
+    "existingRobloxId": "rbxassetid://135400245653127",
+    "provenance": "New vector reconstruction for offline use. Native uses existing game asset ID."
+  },
+  {
+    "name": "CalendarIcon",
+    "kind": "icon",
+    "svg": "assets/svg/icon-calendar.svg",
+    "png": "assets/png/icon-calendar.png",
+    "width": 256,
+    "height": 256,
+    "nativeTemplate": "CalendarIcon"
+  },
+  {
+    "name": "AttemptsIcon",
+    "kind": "icon",
+    "svg": "assets/svg/icon-attempts.svg",
+    "png": "assets/png/icon-attempts.png",
+    "width": 256,
+    "height": 256,
+    "nativeTemplate": "AttemptsIcon"
+  },
+  {
+    "name": "TradesIcon",
+    "kind": "icon",
+    "svg": "assets/svg/icon-trades.svg",
+    "png": "assets/png/icon-trades.png",
+    "width": 256,
+    "height": 256,
+    "nativeTemplate": "TradesIcon"
+  },
+  {
+    "name": "ChevronIcon",
+    "kind": "icon",
+    "svg": "assets/svg/icon-chevron.svg",
+    "png": "assets/png/icon-chevron.png",
+    "width": 256,
+    "height": 256,
+    "nativeTemplate": "ChevronIcon"
+  },
+  {
+    "name": "Info",
+    "kind": "icon",
+    "svg": "assets/svg/icon-info.svg",
+    "png": "assets/png/icon-info.png",
+    "width": 256,
+    "height": 256,
+    "nativeTemplate": "InfoButton"
+  }
+]

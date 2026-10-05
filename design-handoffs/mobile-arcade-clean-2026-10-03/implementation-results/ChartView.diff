@@ -1,0 +1,93 @@
+--- backups/mobile-arcade-clean-20261003/src/ChartView.luau	2026-10-03 03:59:50.000000000 +0000
++++ src/ChartView.luau	2026-10-03 05:39:15.512465100 +0000
+@@ -201,14 +201,20 @@
+ -- Chrome: header, toolbar, view controls and the selected drawing's style bar. Built on full renders.
+ function View:BuildChrome(p,w,h,mobile,headH,toolsH)
+  local ctx=self.Ctx local C,s,Market=ctx.C,self.S,ctx.Market
++ -- Phone landscape: timeframes sit inline in the header so the plot keeps the full column height.
++ local inline=mobile and toolsH==0
++ local tfW=inline and math.clamp(math.floor((w-256)/5),34,54)or 0
+  local frame,text,button,line,stroke,round=ctx.frame,ctx.text,ctx.button,ctx.line,ctx.stroke,ctx.round
+  local F,M,B,N=ctx.F,ctx.M,ctx.B,ctx.N
+  local c=Market.Contracts[s.Contract]
+  local hd=frame(p,"Header",0,0,w,headH,Color3.new(1,1,1));round(hd,14);ctx.tint(hd,Color3.fromRGB(5,60,166),Color3.fromRGB(3,37,102));ctx.stars(hd)
+  ctx.selector(hd,s.Contract,8,7,mobile and 88 or 105,headH-14,function(b)if ctx.openContracts then ctx.openContracts(b)else s.Overlay="Contracts";ctx.refresh()end end,mobile and 14 or 18)
+  if mobile then
+-  ctx.heading(text(hd,"LastPrice","",100,1,w-162,26,18,C.Text,B,RIGHT))
+-  text(hd,"PriceChange","",100,26,w-162,18,10,C.Green,M,RIGHT)
++  local px=inline and 100+5*tfW+4 or 100
++  local lp=ctx.heading(text(hd,"LastPrice","",px,1,w-62-px,26,18,C.Text,B,RIGHT))
++  -- Five-digit prices still fit the narrower inline header.
++  lp.TextScaled=true;local fit=Instance.new("UITextSizeConstraint");fit.MinTextSize=11;fit.MaxTextSize=18;fit.Parent=lp
++  text(hd,"PriceChange","",px,26,w-62-px,18,10,C.Green,M,RIGHT)
+   local tools=ctx.gloss(button(hd,"ChartTools","···",w-50,6,42,headH-12,function()s.Overlay="Tools";ctx.refresh()end,C.Raised,C.Text,18),"Navy")
+   tools.Border.Color=C.Cyan
+  else
+@@ -217,8 +223,8 @@
+   text(hd,"PriceChange","",w-117,0,104,headH,14,C.Green,M,RIGHT)
+  end
+  ctx.rule(hd,0,headH-1,w)
+- local tb=frame(p,"Toolbar",0,headH,w,toolsH,C.Chart);tb.BackgroundTransparency=1
+- local tx=8
++ local tb=inline and frame(p,"Toolbar",100,0,5*tfW,headH,C.Chart,hd.ZIndex+1)or frame(p,"Toolbar",0,headH,w,toolsH,C.Chart);tb.BackgroundTransparency=1
++ local tx=inline and 0 or 8
+  -- Twelve equally sized controls, plus padding and the three group gaps.
+  local desktopPitch=math.max(12,math.min(60,math.floor((w-52)/12)))
+  local function finishControl(b,active,ink)
+@@ -234,9 +240,9 @@
+   b.MouseLeave:Connect(function()b.Border.Color=rest;ink.ImageTransparency=active and 0 or .12 end)
+  end
+  for _,tf in ipairs({"1m","5m","15m","1h","1D"})do
+-  local bw=mobile and(w-16)/5 or desktopPitch
++  local bw=inline and tfW or mobile and(w-16)/5 or desktopPitch
+   local active=tf==s.Timeframe
+-  local b=button(tb,"Time"..tf,"",tx,4,bw-6,toolsH-8,function()s.Timeframe=tf;self:CancelPlacement();ctx.refresh()end,C.Panel,C.Text,18)
++  local b=button(tb,"Time"..tf,"",tx,inline and 7 or 4,bw-6,inline and headH-14 or toolsH-8,function()s.Timeframe=tf;self:CancelPlacement();ctx.refresh()end,C.Panel,C.Text,18)
+   ctx.control(b,active)
+   b:SetAttribute("Tooltip",tf=="1D"and"1 day"or tf=="1h"and"1 hour"or tf:gsub("m", " minutes"))
+   finishControl(b,active,View.AddTimeframeIcon(b,tf));tx+=bw
+@@ -263,16 +269,19 @@
+  end
+  self.Chrome={Header=hd,Toolbar=tb}
+ end
+--- Auto sits at the price/time-axis corner, clear of candles and axis labels.
++-- Auto sits at the price/time-axis corner, clear of candles and axis labels. It matches the
++-- price-axis tag (same width, height and type size) so it reads as part of the axis.
+ function View:BuildControls(p,right)
+  local ctx=self.Ctx local C=ctx.C local button=ctx.button
+- local b=button(p,"AutoFit","Auto",0,0,right-12,32,function()self:AutoFit()end,C.Raised,C.Text,16,9)
++ local axisSize=self.Mobile and 12 or 14
++ local b=button(p,"AutoFit","Auto",0,0,right-4,24,function()self:AutoFit()end,C.Raised,C.Text,axisSize,9)
+  b.AnchorPoint=Vector2.new(1,1)
+- b.Position=UDim2.new(1,-6,1,-6)
++ b.Position=UDim2.new(1,-2,1,-6)
+  b:SetAttribute("Tooltip","Fit price scale to visible candles (double-click the price axis)")
+  ctx.control(b,false)
+- b.ControlLabel.TextScaled=false
++ b.ControlLabel.TextScaled=false;b.ControlLabel.TextSize=axisSize;b.ControlLabel.Font=ctx.B
+  b.ControlLabel.TextColor3=Color3.new(1,1,1)
++ b.Corners.CornerRadius=UDim.new(0,6)
+  self.Controls={AutoFit=b}
+ end
+ function View:UpdateControls(view)
+@@ -348,7 +357,10 @@
+  if not p then return end
+  self.Mobile=mobile
+  local short=h<260
+- local headH=mobile and 48 or short and 44 or 56;local toolsH=mobile and 42 or short and 40 or 48
++ -- Inline is set by the phone landscape layout and needs room for the selector, timeframes and price.
++ local inline=mobile and self.Inline==true and w>=420
++ local headH=inline and 46 or mobile and(h<300 and 44 or 48)or short and 44 or 56
++ local toolsH=inline and 0 or mobile and(h<300 and 40 or 42)or short and 40 or 48
+  if not updating then ctx.panel(p);p.ClipsDescendants=true;self:BuildChrome(p,w,h,mobile,headH,toolsH)end
+  local price=p.Header:FindFirstChild("LastPrice");if price then price.Text=Market.Number(last)end
+  local change=p.Header:FindFirstChild("PriceChange")
+@@ -428,7 +440,7 @@
+  local timeRail=frame(plot,"TimeAxisRail",0,bottom+6,w-right,math.max(0,ph-bottom-6),C.Panel);timeRail.BackgroundTransparency=.65
+  local priceRule=frame(plot,"PriceAxisRule",w-right,0,1,ph,C.Border);priceRule.BackgroundTransparency=.4
+  local timeRule=frame(plot,"TimeAxisRule",left,bottom+6,pw,1,C.Border);timeRule.BackgroundTransparency=.4
+- local priceTicks=Viewport.PriceTicks(view.Low,view.High,c.Tick,compact and 3 or mobile and 5 or math.max(4,math.floor(chartH/45)))
++ local priceTicks=Viewport.PriceTicks(view.Low,view.High,c.Tick,mobile and math.clamp(math.floor(chartH/30),4,10)or math.max(4,math.floor(chartH/45)))
+  local levelY={} for _,n in ipairs(levels)do table.insert(levelY,top+Y(n))end
+  for _,o in ipairs(pendingOrders)do table.insert(levelY,top+Y(o.Price))end
+  for _,n in ipairs(priceTicks)do

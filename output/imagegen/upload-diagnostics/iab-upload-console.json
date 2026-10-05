@@ -1,0 +1,50 @@
+[
+  {
+    "level": "error",
+    "message": "Invalid href '/dashboard/creations/experiences//places' passed to next/router in page: '/dashboard/creations/experiences/[id]/places/[placeId]/thumbnails'. Repeated forward-slashes (//) or backslashes \\ are not valid in the href.",
+    "timestamp": "2026-09-29T00:18:11.892Z",
+    "url": "https://assets.create.roblox.com/683138144d28e0f8b22ef9749a089d8057bdedd4/_next/static/chunks/088n4ncx9r23z.js"
+  },
+  {
+    "level": "warn",
+    "message": "Failed to retrieve translation resources of CreatorDashboard.Wallet for en-US",
+    "timestamp": "2026-09-29T00:18:11.892Z",
+    "url": "https://assets.create.roblox.com/683138144d28e0f8b22ef9749a089d8057bdedd4/_next/static/chunks/0hy8_oyuwe9ki.js"
+  },
+  {
+    "level": "warn",
+    "message": "Failed to retrieve translation resources of CreatorDashboard.Environments for en-US",
+    "timestamp": "2026-09-29T00:18:11.892Z",
+    "url": "https://assets.create.roblox.com/683138144d28e0f8b22ef9749a089d8057bdedd4/_next/static/chunks/0hy8_oyuwe9ki.js"
+  },
+  {
+    "level": "warn",
+    "message": "[From context - om] The translation key 'undefined' doesn't exist for locale 'en-US'!",
+    "timestamp": "2026-09-29T00:18:11.892Z",
+    "url": "https://assets.create.roblox.com/683138144d28e0f8b22ef9749a089d8057bdedd4/_next/static/chunks/0hy8_oyuwe9ki.js"
+  },
+  {
+    "level": "warn",
+    "message": "[From context - om] The translation key 'undefined' doesn't exist for locale 'en-US'!",
+    "timestamp": "2026-09-29T00:18:11.892Z",
+    "url": "https://assets.create.roblox.com/683138144d28e0f8b22ef9749a089d8057bdedd4/_next/static/chunks/0hy8_oyuwe9ki.js"
+  },
+  {
+    "level": "warn",
+    "message": "[From context - ] The translation key 'Heading.PlaceThumbnails' doesn't exist for locale 'en-US'!",
+    "timestamp": "2026-09-29T00:18:11.892Z",
+    "url": "https://assets.create.roblox.com/683138144d28e0f8b22ef9749a089d8057bdedd4/_next/static/chunks/0hy8_oyuwe9ki.js"
+  },
+  {
+    "level": "warn",
+    "message": "[From context - om] The translation key 'undefined' doesn't exist for locale 'en-US'!",
+    "timestamp": "2026-09-29T00:18:11.892Z",
+    "url": "https://assets.create.roblox.com/683138144d28e0f8b22ef9749a089d8057bdedd4/_next/static/chunks/0hy8_oyuwe9ki.js"
+  },
+  {
+    "level": "warn",
+    "message": "[From context - om] The translation key 'undefined' doesn't exist for locale 'en-US'!",
+    "timestamp": "2026-09-29T00:18:11.892Z",
+    "url": "https://assets.create.roblox.com/683138144d28e0f8b22ef9749a089d8057bdedd4/_next/static/chunks/0hy8_oyuwe9ki.js"
+  }
+]

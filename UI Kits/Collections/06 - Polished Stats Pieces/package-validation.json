@@ -1,0 +1,14 @@
+[
+  {
+    "name": "31 editable native components plus module and disabled example",
+    "passed": true
+  },
+  {
+    "name": "All browser and Studio verification passed",
+    "passed": true
+  },
+  {
+    "name": "All preview and asset files exist",
+    "passed": true
+  }
+]

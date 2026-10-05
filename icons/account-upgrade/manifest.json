@@ -1,0 +1,23 @@
+{
+  "mode": "Built-in ImageGen",
+  "assets": [
+    {
+      "file": "leaderboard-trophy.png",
+      "assetId": "rbxassetid://132495280701944",
+      "prompt": "Use case: stylized-concept. Asset type: small supporting icon for a Roblox trading-game leaderboard. A single polished gold trophy cup with cyan enamel accent and small violet pedestal, rounded playful 3D game UI art, clean bold silhouette, soft studio light, front three-quarter view. Centered isolated object occupying 80% of a square canvas, genuinely transparent background. Match a deep navy/cyan/violet trading terminal with Fredoka headings. No text, letters, numbers, chart data, interface, background or watermark.",
+      "path": "C:\\Users\\drews\\Development\\Roblox Dev\\Get Funded!\\icons\\account-upgrade\\leaderboard-trophy.png",
+      "width": 1254,
+      "height": 1254,
+      "rgba": true
+    },
+    {
+      "file": "away-clock.png",
+      "assetId": "rbxassetid://112099938354389",
+      "prompt": "Use case: stylized-concept. Asset type: supporting icon for a Roblox trading-game While You Were Away panel. A single friendly polished cyan clock with a gold rim and small purple curved return arrow wrapping its lower edge, rounded 3D game UI art, clean bold silhouette, soft studio light, front three-quarter view. Simple clock hands with no numerals. Centered isolated object occupying 80% of a square canvas, genuinely transparent background. Match a deep navy/cyan/violet trading terminal with Fredoka headings. No text, letters, numbers, chart data, interface, background or watermark.",
+      "path": "C:\\Users\\drews\\Development\\Roblox Dev\\Get Funded!\\icons\\account-upgrade\\away-clock.png",
+      "width": 1254,
+      "height": 1254,
+      "rgba": true
+    }
+  ]
+}

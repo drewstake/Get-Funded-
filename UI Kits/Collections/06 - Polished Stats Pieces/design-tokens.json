@@ -1,0 +1,43 @@
+{
+  "colors": {
+    "bg": "#031634",
+    "blueTop": "#093982",
+    "blueBottom": "#041B49",
+    "blueEdge": "#0866D6",
+    "purpleTop": "#7531FF",
+    "purpleBottom": "#2813A5",
+    "purpleEdge": "#A16AFF",
+    "text": "#F5F8FF",
+    "muted": "#ABC8F6",
+    "gain": "#20EDAE",
+    "loss": "#FF69A7",
+    "gold": "#FFCF36",
+    "track": "#28518D"
+  },
+  "referenceCanvas": [
+    1672,
+    941
+  ],
+  "font": {
+    "robloxDisplay": "FredokaOne",
+    "robloxBody": "Gotham",
+    "webDisplay": "Lilita One",
+    "webBody": "Segoe UI"
+  },
+  "corner": {
+    "card": 19,
+    "control": 12,
+    "nav": 15
+  },
+  "stroke": {
+    "card": 2,
+    "hero": 3
+  },
+  "spacing": [
+    8,
+    16,
+    24,
+    32
+  ],
+  "minimumTarget": 44
+}

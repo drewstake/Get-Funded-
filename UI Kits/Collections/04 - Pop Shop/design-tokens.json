@@ -1,0 +1,43 @@
+{
+  "name": "Pop Shop",
+  "colors": {
+    "ink": "#171436",
+    "paper": "#ffffff",
+    "header": "#f33443",
+    "primary": "#ffda2c",
+    "cash": "#52e83e",
+    "rebirth": "#ff505f",
+    "speed": "#60f1e9",
+    "time": "#ffe04b",
+    "luck": "#8aef43"
+  },
+  "outline": {
+    "panel": 6,
+    "card": 4,
+    "icon": 9
+  },
+  "radius": {
+    "panel": 34,
+    "card": 24,
+    "button": 24
+  },
+  "font": {
+    "display": "Lilita One",
+    "body": "Trebuchet MS, Arial, sans-serif"
+  },
+  "spacing": [
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    48
+  ],
+  "iconViewBox": [
+    0,
+    0,
+    240,
+    240
+  ]
+}

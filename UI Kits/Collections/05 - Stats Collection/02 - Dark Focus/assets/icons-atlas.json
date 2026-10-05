@@ -1,0 +1,104 @@
+{
+  "image": "icons-atlas.png",
+  "width": 1024,
+  "height": 1024,
+  "cellSize": 256,
+  "icons": {
+    "trade": {
+      "x": 0,
+      "y": 0,
+      "width": 256,
+      "height": 256
+    },
+    "accounts": {
+      "x": 256,
+      "y": 0,
+      "width": 256,
+      "height": 256
+    },
+    "shop": {
+      "x": 512,
+      "y": 0,
+      "width": 256,
+      "height": 256
+    },
+    "stats": {
+      "x": 768,
+      "y": 0,
+      "width": 256,
+      "height": 256
+    },
+    "leaderboard": {
+      "x": 0,
+      "y": 256,
+      "width": 256,
+      "height": 256
+    },
+    "positions": {
+      "x": 256,
+      "y": 256,
+      "width": 256,
+      "height": 256
+    },
+    "review": {
+      "x": 512,
+      "y": 256,
+      "width": 256,
+      "height": 256
+    },
+    "learn": {
+      "x": 768,
+      "y": 256,
+      "width": 256,
+      "height": 256
+    },
+    "settings": {
+      "x": 0,
+      "y": 512,
+      "width": 256,
+      "height": 256
+    },
+    "info": {
+      "x": 256,
+      "y": 512,
+      "width": 256,
+      "height": 256
+    },
+    "calendar": {
+      "x": 512,
+      "y": 512,
+      "width": 256,
+      "height": 256
+    },
+    "chevron": {
+      "x": 768,
+      "y": 512,
+      "width": 256,
+      "height": 256
+    },
+    "check": {
+      "x": 0,
+      "y": 768,
+      "width": 256,
+      "height": 256
+    },
+    "close": {
+      "x": 256,
+      "y": 768,
+      "width": 256,
+      "height": 256
+    },
+    "clock": {
+      "x": 512,
+      "y": 768,
+      "width": 256,
+      "height": 256
+    },
+    "warning": {
+      "x": 768,
+      "y": 768,
+      "width": 256,
+      "height": 256
+    }
+  }
+}

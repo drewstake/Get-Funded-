@@ -1,0 +1,22 @@
+{
+  "tool": "Built-in image_gen",
+  "prompt": "Use case: precise-object-edit / ui-mockup.\nImage 1 is the EDIT TARGET, an existing Get Funded! Polished Game stats-page mockup. Make ONE narrow UI change: in the main stats toolbar below the title, replace the four segmented funded-account selection buttons \"All\", \"$5K\", \"$10K\", \"$25K\" with ONE closed dropdown.\nThe new dropdown must show the exact selected text \"All funded accounts\" and a clear small downward chevron on the right. It replaces the entire old segmented control in that same toolbar position; NONE of the All/$5K/$10K/$25K tab buttons should remain. Match the rounded navy-blue body, subtle bright blue border, white rounded type, padding and height of the existing adjacent Scope dropdown. Retain the existing external \"Funded accounts\" field label where it is present. Keep the new field approximately the same total width as the removed four-button segment, with generous padding, crisp legible label and clear chevron. Show the dropdown CLOSED; options are All funded accounts, $5K accounts, $10K accounts, $25K accounts, but do not render those hidden options elsewhere.\nPreserve every other part of Image 1 unchanged: page format, navigation, title, blue/purple colors, purple P&L card, all card positions, typography, charts and their colors, scope dropdown \"Lifetime · all attempts\", scope summary, footer, calendar notes, and existing active-account picker \"$5K Funded #5\". In particular, do not confuse the funded-account STAT FILTER being changed with the separate existing active-account picker in the sidebar or top navigation; preserve that existing account picker.\nAll statistics remain exactly the same: Total P&L -$56,808.75; Trade win rate 29.27%, 12 wins / 41 trades; Avg win / avg loss 0.45 with $1,073.42 and -$2,403.09; Profit factor 0.18 with gross wins $12,881.00 and gross losses -$69,689.75; daily metrics are em dashes because dates are missing. Keep the full original landscape canvas and all UI inside the frame. No external captions, no new decorations, no other layout changes.",
+  "variants": [
+    {
+      "slug": "01-summary-banner",
+      "name": "1 · Summary Banner"
+    },
+    {
+      "slug": "02-split-dashboard",
+      "name": "2 · Split Dashboard"
+    },
+    {
+      "slug": "03-compact-rows",
+      "name": "3 · Compact Rows"
+    },
+    {
+      "slug": "04-top-navigation",
+      "name": "4 · Top Navigation"
+    }
+  ]
+}

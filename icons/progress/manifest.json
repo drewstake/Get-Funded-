@@ -1,0 +1,16 @@
+{
+  "generator": "Built-in image_gen",
+  "transparent_background": true,
+  "assets": [
+    {"file": "milestone-badge.png", "asset": "rbxassetid://131784853730971", "use": "Next milestone badge"},
+    {"file": "locked-title.png", "asset": "rbxassetid://139407057080398", "use": "Upcoming title rows"},
+    {"file": "earned-check.png", "asset": "rbxassetid://121210473862886", "use": "Earned and legacy title rows"}
+  ],
+  "shared_prompt_prefix": "Use case: ui-mockup. Asset type: individual transparent PNG UI icon for the Roblox game Get Funded!. ",
+  "individual_prompts": {
+    "milestone-badge.png": "A single upright hexagonal achievement medal, polished thick golden rim, rich purple inset, three ascending gold bars at center. Front view with restrained dimensional bevel. No lettering, no numbers, no text, no sparkles floating outside. Silhouette fills 84% of square image.",
+    "locked-title.png": "A single small padlock icon, rounded blue-gray body and silver-blue curved shackle, keyhole in deep navy, front view with subtle dimension. No text, no surrounding tile, no extra objects. Silhouette fills 80% of square image.",
+    "earned-check.png": "A single circular emerald green achievement checkmark button emblem, bright ivory check, soft bevel and subtle upper left highlight, front view. No text, no surrounding tile, no sparkles, no extra objects. Silhouette fills 82% of square image."
+  },
+  "shared_prompt_suffix": " Match a cohesive polished playful Roblox game UI icon set: simple chunky geometry, restrained glossy 3D rendering, crisp edges, soft shading, legible at 32px. True transparent background, no checkerboard, no backdrop, no ground plane or cast shadow outside the object. Centered square composition. This is a production UI asset, not a screenshot."
+}

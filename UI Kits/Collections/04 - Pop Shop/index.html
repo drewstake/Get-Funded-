@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pop Shop — Simulator UI Kit</title>
+  <link rel="stylesheet" href="kit.css">
+</head>
+<body>
+  <header class="topbar"><a class="wordmark" href="#top"><span class="brand-spark">✦</span> POP SHOP <span class="tiny-tag">UI KIT / 01</span></a><nav aria-label="Kit navigation"><a href="#components">Components</a><a href="#icons">Icons</a><a class="download" href="../../Downloads/04%20-%20Pop%20Shop.zip" download>Download kit <span>↗</span></a></nav></header>
+  <main id="top">
+    <section class="intro"><div><p class="eyebrow">BIG COLOR. BOLD OUTLINES. INSTANT GAME FEEL.</p><h1>Small details.<br><span>Big upgrades.</span><svg class="title-spark" viewBox="0 0 90 90" aria-hidden="true"><path d="m45 5 10 29 30 11-30 10-10 30-10-30L5 45l30-11Z" fill="#ffda2c" stroke="#171436" stroke-width="4"/></svg></h1></div><div class="intro-side"><span class="pill">THE POP SHOP COLLECTION</span><p>A punchy simulator kit, built around chunky icons, candy-bright cards, and buttons you want to press.</p><div class="intro-meta"><span>16 original icons</span><span>SVG + PNG</span><span>Fully editable</span></div></div></section>
+    <section class="preview-section" aria-labelledby="preview-title"><div class="section-line"><h2 id="preview-title"><span>01</span> The shop, in action</h2><div class="preview-tools"><span class="live-dot"></span><span>INTERACTIVE PREVIEW</span><button class="plain-button" id="reset">Reset ↻</button></div></div>
+      <div class="game-stage" id="game-stage"><div class="cloud cloud-one"></div><div class="cloud cloud-two"></div><div class="ground"></div><span class="stage-caption">YOUR NEXT UPGRADE STARTS HERE.</span>
+        <nav class="game-nav" aria-label="Game menu">
+          <button class="icon-button active" data-action="shop" aria-label="Open shop" title="Shop"><img src="assets/svg/shop.svg" alt=""><span>SHOP</span></button>
+          <button class="icon-button" data-action="potion" aria-label="Boosts" title="Boosts"><img src="assets/svg/potion.svg" alt=""><span>BOOSTS</span></button>
+          <button class="icon-button" data-action="wheel" aria-label="Daily spin" title="Daily spin"><img src="assets/svg/wheel.svg" alt=""><span>15:00</span></button>
+          <button class="icon-button" data-action="pet" aria-label="Pets" title="Pets"><img src="assets/svg/pet.svg" alt=""><span>PETS</span></button>
+          <button class="icon-button" data-action="codes" aria-label="Codes" title="Codes"><img src="assets/svg/codes.svg" alt=""><span>CODES</span></button>
+          <button class="icon-button" data-action="settings" aria-label="Settings" title="Settings"><img src="assets/svg/settings.svg" alt=""><span>SETTINGS</span></button>
+          <button class="icon-button" data-action="rebirth" aria-label="Rebirth" title="Rebirth"><img src="assets/svg/rebirth.svg" alt=""><span>REBIRTH</span></button>
+          <button class="icon-button" data-action="gift" aria-label="Rewards" title="Rewards"><img src="assets/svg/gift.svg" alt=""><span>REWARDS</span><i></i></button>
+          <button class="icon-button" data-action="upgrade" aria-label="Upgrades" title="Upgrades"><img src="assets/svg/upgrade.svg" alt=""><span>UPGRADE</span></button>
+        </nav>
+        <button class="game-button reopen" id="reopen" hidden>OPEN SHOP <img src="assets/svg/shop.svg" alt=""></button>
+        <section class="shop-panel" id="shop-panel" aria-label="Shop"><header class="shop-header"><h3>SHOP</h3><button class="close-button" id="close-shop" aria-label="Close shop">×</button></header><div class="shop-scroll" id="shop-cards" tabindex="0" aria-label="Shop upgrades"></div></section>
+        <div class="currency"><span id="gem-count">0</span><img src="assets/svg/gem.svg" alt="gems"></div>
+        <div class="demo-label">DEMO • NO REAL PURCHASES</div><div class="toast" id="toast" role="status" hidden></div>
+        <div class="modal-shade" id="confirm" hidden><section class="confirm-panel" role="dialog" aria-modal="true" aria-labelledby="confirm-title"><button class="mini-close" id="cancel-x" aria-label="Cancel purchase">×</button><img id="confirm-icon" src="assets/svg/cash.svg" alt=""><p class="eyebrow">TRY THE PURCHASE STATE</p><h3 id="confirm-title">UNLOCK X2 CASH?</h3><p>This is a visual demo. No currency is spent.</p><div class="confirm-actions"><button class="game-button muted" id="cancel">CANCEL</button><button class="game-button" id="buy">UNLOCK</button></div></section></div>
+      </div><p class="section-footnote">Open, close, scroll, and try an upgrade. Hover or tap the sidebar to explore the icon states.</p>
+    </section>
+    <section id="components" class="components"><div class="section-line"><h2><span>02</span> Made to mix & match</h2><p>ONE VISUAL LANGUAGE. EVERY LITTLE DETAIL.</p></div><div class="component-grid">
+      <article class="specimen buttons-specimen"><div class="spec-label">A / BUTTON SYSTEM <span>4 STATES</span></div><div class="button-states"><div><button class="game-button sample-button">BUY NOW</button><label>DEFAULT</label></div><div><button class="game-button sample-button pressed">BUY NOW</button><label>PRESSED</label></div><div><button class="game-button success sample-button">✓ OWNED</button><label>SELECTED</label></div><div><button class="game-button" disabled>LOCKED</button><label>DISABLED</label></div></div></article>
+      <article class="specimen"><div class="spec-label">B / CURRENCY & BADGES <span>HUD</span></div><div class="hud-samples"><div class="currency inline"><span>1,250</span><img src="assets/svg/gem.svg" alt="gems"></div><div class="currency inline coin"><img src="assets/svg/coin.svg" alt="coins"><span>25.4K</span></div></div><div class="badges"><span class="pill yellow">BEST VALUE</span><span class="pill green">✓ EQUIPPED</span><span class="pill pink">NEW!</span></div></article>
+      <article class="specimen notice-specimen"><div class="spec-label">C / FEEDBACK <span>NOTIFICATIONS</span></div><div class="notice good"><span>✓</span><div><strong>Upgrade unlocked!</strong><small>Time to go twice as fast.</small></div><img src="assets/svg/speed.svg" alt=""></div><div class="notice error"><span>!</span><div><strong>Not enough gems</strong><small>Collect a few more and try again.</small></div></div></article>
+      <article class="specimen"><div class="spec-label">D / PROGRESS & CONTROLS <span>PLAYER UI</span></div><div class="level-label"><strong>DAILY REWARD</strong><span id="progress-label">3 / 5</span></div><button class="progress" id="progress" aria-label="Advance daily reward progress"><span id="progress-fill"></span><img src="assets/svg/gift.svg" alt=""></button><div class="toggle-row"><span>Button animations</span><button class="toggle" id="motion" role="switch" aria-checked="true" aria-label="Button animations"><span></span></button></div></article>
+    </div></section>
+    <section class="icon-section" id="icons"><div class="section-line"><h2><span>03</span> A whole lot of character</h2><p>16 ICONS · TRANSPARENT BACKGROUNDS · 512 PX</p></div><div class="icon-grid" id="icon-grid"></div><p class="section-footnote">Individual SVG and PNG downloads below each icon. All artwork uses a consistent 240 × 240 viewBox.</p></section>
+    <section class="foundations"><div class="section-line"><h2><span>04</span> The good stuff underneath</h2><p>COLOR, TYPE & SHAPE</p></div><div class="foundations-grid"><article class="specimen palette"><div class="spec-label">E / COLOR PALETTE</div><div class="swatches" id="swatches"></div></article><article class="specimen type-specimen"><div class="spec-label">F / TYPOGRAPHY & CONSTRUCTION</div><h3>LEVEL UP!</h3><p>Lilita One / big, friendly, and a little loud.</p><div class="type-details"><span><b>4–6 px</b>navy outlines</span><span><b>24–34 px</b>round corners</span><span><b>8 px</b>spacing rhythm</span></div></article></div></section>
+    <footer><a class="wordmark" href="#top"><span class="brand-spark">✦</span> POP SHOP</a><p>Original vector artwork inspired by your reference.<br>Editable SVG · Transparent PNG · Design tokens · Offline preview</p><a href="README.md">Kit notes ↗</a></footer>
+  </main><script src="kit.js"></script>
+</body></html>

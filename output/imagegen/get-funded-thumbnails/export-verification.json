@@ -1,0 +1,35 @@
+[
+  {
+    "name": "01-the-focused-trader.png",
+    "width": 1920,
+    "height": 1080,
+    "format": "png",
+    "space": "srgb",
+    "channels": 3,
+    "palette": false,
+    "bytes": 2241760,
+    "under3MB": true
+  },
+  {
+    "name": "02-the-big-win.png",
+    "width": 1920,
+    "height": 1080,
+    "format": "png",
+    "space": "srgb",
+    "channels": 3,
+    "palette": false,
+    "bytes": 2312978,
+    "under3MB": true
+  },
+  {
+    "name": "03-the-market-challenge.png",
+    "width": 1920,
+    "height": 1080,
+    "format": "png",
+    "space": "srgb",
+    "channels": 3,
+    "palette": false,
+    "bytes": 2236104,
+    "under3MB": true
+  }
+]

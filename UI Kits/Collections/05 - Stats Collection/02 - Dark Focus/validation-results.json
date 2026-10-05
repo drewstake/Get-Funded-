@@ -1,0 +1,72 @@
+{
+  "theme": "Dark Focus",
+  "checks": [
+    {
+      "name": "All six original aggregate values",
+      "passed": true
+    },
+    {
+      "name": "Tier and usable-account filters use matching fills",
+      "passed": true
+    },
+    {
+      "name": "Dated scope recomputes every metric consistently",
+      "passed": true
+    },
+    {
+      "name": "Partial history retains net and hides unsupported ratios",
+      "passed": true
+    },
+    {
+      "name": "Infinity and zero denominators are distinct",
+      "passed": true
+    },
+    {
+      "name": "Profitable-day example shows meaningful daily stats",
+      "passed": true
+    },
+    {
+      "name": "Loading, empty and retryable error states",
+      "passed": true
+    },
+    {
+      "name": "Metric help keyboard dismissal restores focus",
+      "passed": true
+    },
+    {
+      "name": "Reduced motion control changes preview behavior",
+      "passed": true
+    },
+    {
+      "name": "No broken local assets",
+      "passed": true
+    },
+    {
+      "name": "All 25 transparent exports have correct dimensions",
+      "passed": true
+    },
+    {
+      "name": "Normal data text meets 4.5:1 contrast on cards",
+      "passed": true
+    },
+    {
+      "name": "Responsive layouts have no document overflow or clipped values",
+      "passed": true
+    },
+    {
+      "name": "Phone controls and help remain operable",
+      "passed": true
+    },
+    {
+      "name": "No browser JavaScript or local resource errors",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "contrast": {
+    "text": 14.79,
+    "muted": 8.4,
+    "gain": 9.13,
+    "loss": 7.17
+  }
+}

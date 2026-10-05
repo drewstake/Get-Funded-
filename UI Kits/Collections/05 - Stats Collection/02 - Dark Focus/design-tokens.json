@@ -1,0 +1,60 @@
+{
+  "name": "Dark Focus",
+  "colors": {
+    "bg": "#0B1220",
+    "sidebar": "#0F1929",
+    "surface": "#142135",
+    "card": "#142135",
+    "border": "#2B3E5A",
+    "text": "#F1F5FC",
+    "muted": "#ACBCD5",
+    "accent": "#7141DB",
+    "accent_text": "#C7B0FF",
+    "gain": "#4AD9B1",
+    "loss": "#FF87AC",
+    "track": "#2A3B54",
+    "notice": "#111F32",
+    "gold": "#F5C65B",
+    "focus": "#A99AFF"
+  },
+  "radius": {
+    "card": 14,
+    "control": 10,
+    "pill": 999
+  },
+  "stroke": 1,
+  "spacing": [
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    48
+  ],
+  "typography": {
+    "display": "Segoe UI",
+    "body": "Segoe UI, Arial",
+    "robloxDisplay": "GothamBold",
+    "robloxBody": "Gotham",
+    "page": 36,
+    "cardTitle": 18,
+    "value": 46,
+    "bodySize": 14,
+    "caption": 12
+  },
+  "motion": {
+    "pressMs": 80,
+    "selectionMs": 140,
+    "pressTravelPx": 1,
+    "reducedMotion": true
+  },
+  "layout": {
+    "sidebar": 216,
+    "cardPadding": 20,
+    "cardGap": 16,
+    "minimumTarget": 44,
+    "phoneBreakpoint": 760,
+    "tabletBreakpoint": 1200
+  }
+}

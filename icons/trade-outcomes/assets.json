@@ -1,0 +1,6 @@
+{
+  "generator": "Built-in imagegen",
+  "profit": {"file": "profit-happy.png", "asset": "rbxassetid://115617570278067", "condition": "Pnl > 0"},
+  "loss": {"file": "loss-sad.png", "asset": "rbxassetid://128402867973425", "condition": "Pnl < 0"},
+  "breakEven": "No outcome face"
+}

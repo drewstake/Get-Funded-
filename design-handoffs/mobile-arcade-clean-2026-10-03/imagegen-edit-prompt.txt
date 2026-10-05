@@ -1,0 +1,11 @@
+Built-in imagegen edit, 2026-10-03.
+Reference: C:\Users\drews\AppData\Local\Temp\codex-clipboard-defbf0d7-b845-4f08-9da4-eb5731e6c89b.png
+Output: A-arcade-clean-v2-no-position.png
+
+Use case: precise-object-edit / ui-mockup.
+Edit this exact attached 1536x1024 UI concept board with ONE targeted change in the portrait phone on the LEFT.
+Remove the entire row/card labeled "Position • None" and its subtitle "You have no open position", including its briefcase icon and right chevron. The removed row is approximately x52–490, y665–724.
+Give ALL of that recovered space to the portrait candlestick chart: extend the existing chart card's bottom from about y657 down to y724. Enlarge the actual plotting area vertically into the recovered space and move its time axis down accordingly. Do not simply leave a blank space or increase padding. Keep the portrait chart's top, width, BX/price header and timeframe controls fixed. Preserve the candlestick series and current price 5,902.75, red/green candles, readable grid, right axis, and the existing chart styling; use the additional height for a genuinely taller plot.
+Keep the Quantity / Risk controls row at its current y734 position, and keep BUY / SELL and the bottom navigation exactly in their original positions and sizes. Do not replace the removed position row with another control.
+Everything else in the entire image is invariant: preserve the full landscape mockup on the right, all board headings and feature captions, backgrounds, dimensions, colors, fonts, icons, portrait header/account strip, and all other controls. Do not redesign, crop, add content or alter navigation. Output the complete edited concept board.
+

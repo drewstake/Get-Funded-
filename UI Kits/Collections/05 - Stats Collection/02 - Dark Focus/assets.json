@@ -1,0 +1,306 @@
+[
+  {
+    "name": "trade",
+    "kind": "icon",
+    "svg": "assets/svg/icon-trade.svg",
+    "png": "assets/png/icon-trade.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "accounts",
+    "kind": "icon",
+    "svg": "assets/svg/icon-accounts.svg",
+    "png": "assets/png/icon-accounts.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "shop",
+    "kind": "icon",
+    "svg": "assets/svg/icon-shop.svg",
+    "png": "assets/png/icon-shop.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "stats",
+    "kind": "icon",
+    "svg": "assets/svg/icon-stats.svg",
+    "png": "assets/png/icon-stats.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "leaderboard",
+    "kind": "icon",
+    "svg": "assets/svg/icon-leaderboard.svg",
+    "png": "assets/png/icon-leaderboard.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "positions",
+    "kind": "icon",
+    "svg": "assets/svg/icon-positions.svg",
+    "png": "assets/png/icon-positions.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "review",
+    "kind": "icon",
+    "svg": "assets/svg/icon-review.svg",
+    "png": "assets/png/icon-review.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "learn",
+    "kind": "icon",
+    "svg": "assets/svg/icon-learn.svg",
+    "png": "assets/png/icon-learn.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "settings",
+    "kind": "icon",
+    "svg": "assets/svg/icon-settings.svg",
+    "png": "assets/png/icon-settings.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "info",
+    "kind": "icon",
+    "svg": "assets/svg/icon-info.svg",
+    "png": "assets/png/icon-info.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "calendar",
+    "kind": "icon",
+    "svg": "assets/svg/icon-calendar.svg",
+    "png": "assets/png/icon-calendar.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "chevron",
+    "kind": "icon",
+    "svg": "assets/svg/icon-chevron.svg",
+    "png": "assets/png/icon-chevron.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "check",
+    "kind": "icon",
+    "svg": "assets/svg/icon-check.svg",
+    "png": "assets/png/icon-check.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "close",
+    "kind": "icon",
+    "svg": "assets/svg/icon-close.svg",
+    "png": "assets/png/icon-close.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "clock",
+    "kind": "icon",
+    "svg": "assets/svg/icon-clock.svg",
+    "png": "assets/png/icon-clock.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "warning",
+    "kind": "icon",
+    "svg": "assets/svg/icon-warning.svg",
+    "png": "assets/png/icon-warning.png",
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "name": "panel",
+    "kind": "surface",
+    "svg": "assets/svg/panel.svg",
+    "png": "assets/png/panel.png",
+    "size": [
+      960,
+      560
+    ],
+    "sliceCenter": [
+      48,
+      48,
+      912,
+      512
+    ]
+  },
+  {
+    "name": "hero",
+    "kind": "surface",
+    "svg": "assets/svg/hero.svg",
+    "png": "assets/png/hero.png",
+    "size": [
+      960,
+      560
+    ],
+    "sliceCenter": [
+      48,
+      48,
+      912,
+      512
+    ]
+  },
+  {
+    "name": "button-primary",
+    "kind": "surface",
+    "svg": "assets/svg/button-primary.svg",
+    "png": "assets/png/button-primary.png",
+    "size": [
+      720,
+      160
+    ],
+    "sliceCenter": [
+      48,
+      48,
+      672,
+      112
+    ]
+  },
+  {
+    "name": "button-default",
+    "kind": "surface",
+    "svg": "assets/svg/button-default.svg",
+    "png": "assets/png/button-default.png",
+    "size": [
+      720,
+      160
+    ],
+    "sliceCenter": [
+      48,
+      48,
+      672,
+      112
+    ]
+  },
+  {
+    "name": "button-disabled",
+    "kind": "surface",
+    "svg": "assets/svg/button-disabled.svg",
+    "png": "assets/png/button-disabled.png",
+    "size": [
+      720,
+      160
+    ],
+    "sliceCenter": [
+      48,
+      48,
+      672,
+      112
+    ]
+  },
+  {
+    "name": "navigation-selected",
+    "kind": "surface",
+    "svg": "assets/svg/navigation-selected.svg",
+    "png": "assets/png/navigation-selected.png",
+    "size": [
+      720,
+      160
+    ],
+    "sliceCenter": [
+      48,
+      48,
+      672,
+      112
+    ]
+  },
+  {
+    "name": "notice",
+    "kind": "surface",
+    "svg": "assets/svg/notice.svg",
+    "png": "assets/png/notice.png",
+    "size": [
+      720,
+      160
+    ],
+    "sliceCenter": [
+      48,
+      48,
+      672,
+      112
+    ]
+  },
+  {
+    "name": "input",
+    "kind": "surface",
+    "svg": "assets/svg/input.svg",
+    "png": "assets/png/input.png",
+    "size": [
+      720,
+      160
+    ],
+    "sliceCenter": [
+      48,
+      48,
+      672,
+      112
+    ]
+  },
+  {
+    "name": "progress-track",
+    "kind": "surface",
+    "svg": "assets/svg/progress-track.svg",
+    "png": "assets/png/progress-track.png",
+    "size": [
+      720,
+      160
+    ],
+    "sliceCenter": [
+      48,
+      48,
+      672,
+      112
+    ]
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "file": "Get-Funded-One-More-Candle.mp4",
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "duration": 16.0,
+  "frames": 480,
+  "audio": {
+    "sample_rate": 48000,
+    "seconds": 16.0,
+    "peak_dbfs": -1.1103465569966273,
+    "bpm": 150,
+    "composition": "Original synthesized instrumental and UI effects; no sampled music."
+  },
+  "provenance": "Staged animation reconstructed from the current game UI; not a live recording.",
+  "trade": {
+    "market": "BX / Blox 500",
+    "quantity": 1,
+    "entry": 5825.0,
+    "exit": 5855,
+    "multiplier": 50,
+    "realized_profit": 1500,
+    "starting_balance": 10000,
+    "ending_balance": 11500
+  }
+}

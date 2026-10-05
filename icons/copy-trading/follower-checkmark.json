@@ -1,0 +1,19 @@
+{
+  "generator": "Built-in ImageGen",
+  "asset": "follower-checkmark.png",
+  "robloxAsset": "rbxassetid://87249253289841",
+  "transparent_background": true,
+  "prompt": "Use case: stylized-concept. Asset type: production Roblox checkbox checkmark icon for Get Funded!, a bold colorful cartoon trading game with Fredoka typography, purple/cyan panels, vivid green selected checkbox fills, dark navy outlines. Generate one isolated crisp checkmark ONLY, centered on a square transparent canvas. Shape: confident chunky check with a short downstroke and longer ascending right stroke, softly rounded corners and ends. Color: solid very dark navy (#031237) with a tiny restrained blue edge highlight, strong readable silhouette at 20 to 26 pixels display size. Flat cartoon game UI finish, vector-like precision, smooth clean antialiased edges. Fill about 85 percent of canvas width with balanced transparent padding. No checkbox square, no circle, no badge, no shadow outside shape, no glow, no texture, no text, no watermark. Truly transparent background, preserve alpha. This must remain clear and clean when displayed inside a bright green 26 or 30 pixel checkbox.",
+  "display": {
+    "checkboxPixels": [
+      26,
+      30
+    ],
+    "imagePixels": [
+      22,
+      26
+    ],
+    "resampling": "Roblox Default",
+    "scaleType": "Fit"
+  }
+}

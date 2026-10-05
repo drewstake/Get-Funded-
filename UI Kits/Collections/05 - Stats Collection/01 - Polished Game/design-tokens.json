@@ -1,0 +1,60 @@
+{
+  "name": "Polished Game",
+  "colors": {
+    "bg": "#06142E",
+    "sidebar": "#0A2350",
+    "surface": "#102E60",
+    "card": "#102E60",
+    "border": "#294F83",
+    "text": "#F5F8FF",
+    "muted": "#B0C7E8",
+    "accent": "#7138E8",
+    "accent_text": "#C8B2FF",
+    "gain": "#3BE6B0",
+    "loss": "#FF81AF",
+    "track": "#294B79",
+    "notice": "#0C254C",
+    "gold": "#FFD34D",
+    "focus": "#77D9FF"
+  },
+  "radius": {
+    "card": 18,
+    "control": 10,
+    "pill": 999
+  },
+  "stroke": 1,
+  "spacing": [
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    48
+  ],
+  "typography": {
+    "display": "Lilita One",
+    "body": "Segoe UI, Arial",
+    "robloxDisplay": "FredokaOne",
+    "robloxBody": "Gotham",
+    "page": 36,
+    "cardTitle": 18,
+    "value": 46,
+    "bodySize": 14,
+    "caption": 12
+  },
+  "motion": {
+    "pressMs": 80,
+    "selectionMs": 140,
+    "pressTravelPx": 1,
+    "reducedMotion": true
+  },
+  "layout": {
+    "sidebar": 216,
+    "cardPadding": 20,
+    "cardGap": 16,
+    "minimumTarget": 44,
+    "phoneBreakpoint": 760,
+    "tabletBreakpoint": 1200
+  }
+}

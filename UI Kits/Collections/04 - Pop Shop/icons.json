@@ -1,0 +1,98 @@
+[
+  {
+    "name": "cash",
+    "svg": "assets/svg/cash.svg",
+    "png": "assets/png/cash.png",
+    "size": 512
+  },
+  {
+    "name": "rebirth",
+    "svg": "assets/svg/rebirth.svg",
+    "png": "assets/png/rebirth.png",
+    "size": 512
+  },
+  {
+    "name": "speed",
+    "svg": "assets/svg/speed.svg",
+    "png": "assets/png/speed.png",
+    "size": 512
+  },
+  {
+    "name": "time",
+    "svg": "assets/svg/time.svg",
+    "png": "assets/png/time.png",
+    "size": 512
+  },
+  {
+    "name": "luck",
+    "svg": "assets/svg/luck.svg",
+    "png": "assets/png/luck.png",
+    "size": 512
+  },
+  {
+    "name": "shop",
+    "svg": "assets/svg/shop.svg",
+    "png": "assets/png/shop.png",
+    "size": 512
+  },
+  {
+    "name": "potion",
+    "svg": "assets/svg/potion.svg",
+    "png": "assets/png/potion.png",
+    "size": 512
+  },
+  {
+    "name": "wheel",
+    "svg": "assets/svg/wheel.svg",
+    "png": "assets/png/wheel.png",
+    "size": 512
+  },
+  {
+    "name": "pet",
+    "svg": "assets/svg/pet.svg",
+    "png": "assets/png/pet.png",
+    "size": 512
+  },
+  {
+    "name": "codes",
+    "svg": "assets/svg/codes.svg",
+    "png": "assets/png/codes.png",
+    "size": 512
+  },
+  {
+    "name": "settings",
+    "svg": "assets/svg/settings.svg",
+    "png": "assets/png/settings.png",
+    "size": 512
+  },
+  {
+    "name": "gift",
+    "svg": "assets/svg/gift.svg",
+    "png": "assets/png/gift.png",
+    "size": 512
+  },
+  {
+    "name": "upgrade",
+    "svg": "assets/svg/upgrade.svg",
+    "png": "assets/png/upgrade.png",
+    "size": 512
+  },
+  {
+    "name": "boost",
+    "svg": "assets/svg/boost.svg",
+    "png": "assets/png/boost.png",
+    "size": 512
+  },
+  {
+    "name": "gem",
+    "svg": "assets/svg/gem.svg",
+    "png": "assets/png/gem.png",
+    "size": 512
+  },
+  {
+    "name": "coin",
+    "svg": "assets/svg/coin.svg",
+    "png": "assets/png/coin.png",
+    "size": 512
+  }
+]

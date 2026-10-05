@@ -1,0 +1,11 @@
+Built-in ImageGen. Three transparent product illustrations, one call per asset. Originals copied unchanged into icons/shop.
+
+Shared prompt: Create one isolated polished Roblox game shop product illustration on a genuinely transparent background. Match a bright playful navy/cyan/violet trading simulator UI with glossy smooth 3D-like cartoon surfaces and clean thick silhouettes.
+
+depth: A compact blue futuristic order-book display floating on a small oval base, in a slight three-quarter front view. Thick rounded glossy navy casing, luminous cyan edges, violet blue accents. On its screen a narrow central column of abstract pale dash marks, with red horizontal sell bars only in the upper rows, green buy bars only in the lower rows, and a thin cyan middle divider. Do not draw legible letters, words or numbers. No surrounding slogan panels.
+
+vip: A single beautiful gold crown with five rounded pointed tips topped by gold spheres, warm amber shading, pale yellow highlights and a small royal-blue cushion-like pedestal. Soft dimensional cartoon game artwork, premium but friendly.
+
+themes: Three overlapping compact rounded trading-screen panels fanning subtly apart: foreground panel violet, middle bright blue, rear cyan. Dark navy screens with tiny abstract chart strokes and horizontal UI bars, no legible text or numbers. Soft dimensional cartoon game artwork.
+
+Shared suffix: Square composition. Object fills 85 percent of the frame, fully visible, with restrained glow, crisp edges, balanced centered silhouette. No background, no full UI card, no text, no price, no watermark, no unrelated objects. This image will be placed over an existing dark-blue shop card.

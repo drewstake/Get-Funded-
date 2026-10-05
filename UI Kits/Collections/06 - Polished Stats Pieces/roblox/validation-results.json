@@ -1,0 +1,59 @@
+{
+  "scope": "Studio runtime compilation, native hierarchy construction, formatting, data binding and dropdown lifecycle using unparented test objects.",
+  "temporaryInstancesDestroyed": true,
+  "passed": 13,
+  "checks": [
+    {
+      "name": "All 32 templates construct as native GUI hierarchies",
+      "passed": true
+    },
+    {
+      "name": "Exact initial aggregate and incomplete daily state",
+      "passed": true
+    },
+    {
+      "name": "Incomplete breakdown suppresses unsupported ratios",
+      "passed": true
+    },
+    {
+      "name": "Infinity and best-day percentages above 100",
+      "passed": true
+    },
+    {
+      "name": "Assembled mount applies editable values",
+      "passed": true
+    },
+    {
+      "name": "Funded dropdown selection commits matching aggregate",
+      "passed": true
+    },
+    {
+      "name": "Scope dropdown is independent and dated updates daily metrics",
+      "passed": true
+    },
+    {
+      "name": "Failed data fetch preserves selected scope and values",
+      "passed": true
+    },
+    {
+      "name": "One popup at a time and reopening a superseded popup",
+      "passed": true
+    },
+    {
+      "name": "Update and progress proportions remain consistent",
+      "passed": true
+    },
+    {
+      "name": "Existing game icon IDs preserved",
+      "passed": true
+    },
+    {
+      "name": "Native help popup construction and cleanup",
+      "passed": true
+    },
+    {
+      "name": "Destroy removes owned objects and menu listeners",
+      "passed": true
+    }
+  ]
+}

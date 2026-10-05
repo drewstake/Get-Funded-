@@ -1,0 +1,15 @@
+Built-in imagegen. Style reference: design-handoffs/mobile-arcade-clean-2026-10-03/current-portrait.png
+
+Use case: ui-mockup.
+Asset type: high-fidelity mobile-friendly modal UI design for the Roblox trading game Get Funded!
+Primary request: redesign the "While You Were Away" popup to be much cleaner and more concise, readable at a glance on a phone.
+Input image 1 is a STYLE REFERENCE for the existing game's navy/cyan/purple palette and friendly rounded typography. Do not reproduce the crowded trading screen. This is a new popup design.
+Composition: one straight-on polished UI mockup, portrait artboard approximately 1024x1280. A single compact centered modal over a subtly dimmed, very quiet navy trading-chart backdrop. No physical phone frame, no perspective, no mockup captions, no design-board labels. The entire modal and its button must be visible. Its proportions should scale naturally to about 350px wide and 440px high on a phone.
+Style: clean native-game UI, deep navy card, restrained thin cyan border, softly rounded corners, subtle depth. Friendly white rounded bold heading inspired by Fredoka, crisp simple sans-serif secondary text and numbers. Strong hierarchy, generous but efficient spacing, clear alignment. Use the reference's playful palette with substantially less bevel, glow, heavy outlines, and visual noise. Use color only for meaningful profit and the primary button.
+Exact content and hierarchy, all text legible and verbatim:
+1. Header at top: a small tasteful purple-and-cyan clock icon to the left of the heading "While you were away" (heading may use two short lines). Directly beneath the heading, muted light blue text "Away for 2h 14m".
+2. Main focus: small label "Net change", then one prominent mint-green amount "+$287.50". Beneath it, small muted text "Since you left". This is the only oversized number.
+3. A subtle divider, then two tidy rows with left labels and right-aligned amounts: "Closed trades" with "+$225.00"; "Open trades" with "+$62.50". Both amounts mint green. Do not put these into separate bordered cards.
+4. A quiet collapsed disclosure row: "View 3 trades" and a small downward chevron. No visible expanded trade details.
+5. A full-width purple rounded primary button labeled "Continue", large enough for a comfortable touch target. A restrained top highlight is okay; no enormous bevel.
+The values are illustrative design data and mathematically sum correctly. Do not add a claim-reward mechanic, claim button, cash-stack illustration, balance amount, extra statistics, tutorial copy, explanatory paragraphs, duplicate totals, tooltips, badges, confetti, dismiss X, or additional buttons. No tiny legal text. No scrollbar. The popup must feel like a concise returning-player summary, not a rewards ad or a dense finance report. High-quality sharp UI rendering.

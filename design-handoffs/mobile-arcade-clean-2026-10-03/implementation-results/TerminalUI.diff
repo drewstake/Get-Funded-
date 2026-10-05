@@ -1,0 +1,497 @@
+--- backups/mobile-arcade-clean-20261003/src/TerminalUI.luau	2026-10-03 04:12:41.000000000 +0000
++++ src/TerminalUI.luau	2026-10-03 05:42:04.649119100 +0000
+@@ -524,6 +524,14 @@
+   if not n then return "NEXT GOAL",pf and "Every title earned" or "Close your first trade",pf and 1 or 0,pf and "Title collection complete" or "0 / 1","Build your record. Earn your rank." end
+   return "NEXT GOAL",n.Name,math.clamp(n.Progress/n.Goal,0,1),goalAmount(n),n.Name
+  end
++ -- Phone account strip: "16 / 100 trades".
++ local function stripGoal()
++  local pf=session.Portfolio;local n=pf and pf.Next
++  if not n then return pf and "All titles earned" or "0 / 1 trades" end
++  local amount=goalAmount(n)
++  if n.Kind=="Trades"then return amount.." trades"elseif n.Kind=="Wins"then return amount.." wins"end
++  return amount
++ end
+  local function tierRow(key)
+   local pf=session.Portfolio
+   for _,row in ipairs(pf and pf.Accounts or{})do if row.Key==key then return row end end
+@@ -754,6 +762,9 @@
+   local ok,err=xpcall(chartView.Paint,debug.traceback,chartView,x,y,w,h,mobile,compact,updating)
+   if ok then
+    if chartFault then chartFault=nil;root:SetAttribute("ChartError",nil)end
++   -- Phones: a slimmer rim leaves more of the screen to candles.
++   local p=mobile and not updating and canvas:FindFirstChild("Chart")
++   if p and p:FindFirstChild("Border")then p.Border.Thickness=2;p.Corners.CornerRadius=UDim.new(0,14)end
+    return
+   end
+   painting=nil;chartView:Reset()
+@@ -848,14 +859,16 @@
+    end
+   end
+  end
+- local function tradeButtons(p,x,y,w,bh)
++ local function tradeButtons(p,x,y,w,bh,stacked)
+   bh=bh or 48
+-  local bw=(w-10)/2
++  -- Equal actions: side by side, or stacked in the phone landscape column.
++  local bw=stacked and w or(w-10)/2
+   local pending=s.PendingOrder
+-  for _,d in ipairs({{1,"BuyLong",s.Type=="Limit"and"↑ LIMIT BUY"or"↑ BUY",C.Buy,0},{-1,"SellShort",s.Type=="Limit"and"↓ LIMIT SELL"or"↓ SELL",C.Sell,bw+10}})do
++  for i,d in ipairs({{1,"BuyLong",s.Type=="Limit"and"↑ LIMIT BUY"or"↑ BUY",C.Buy},{-1,"SellShort",s.Type=="Limit"and"↓ LIMIT SELL"or"↓ SELL",C.Sell}})do
+    local enabled=options.Preview or session.CanTrade
+    if pending then d[3]=pending.Direction==d[1]and"SENDING…"or d[3]end
+-   local b=button(p,d[2],d[3],x+d[5],y,bw,bh,function()if enabled then place(d[1])end end,enabled and d[4]or C.Raised,enabled and C.Text or C.Muted,16)
++   local ox,oy=stacked and 0 or(i-1)*(bw+10),stacked and(i-1)*(bh+8)or 0
++   local b=button(p,d[2],d[3],x+ox,y+oy,bw,bh,function()if enabled then place(d[1])end end,enabled and d[4]or C.Raised,enabled and C.Text or C.Muted,16)
+    b.Active=enabled;b.Selectable=enabled;b.Font=B;b.TextSize=20;b.Corners.CornerRadius=UDim.new(0,11)
+    if enabled then
+     b.BackgroundColor3=Color3.new(1,1,1);b:SetAttribute("RestingColor",Color3.new(1,1,1))
+@@ -1108,32 +1121,105 @@
+   yy+=40
+   if not fixed then sc.CanvasSize=UDim2.fromOffset(0,yy)end
+  end
+- local function mobileDock(x,y,w,h,compact)
++ -- Phone trade controls ("Arcade Clean"). Compact summaries of the existing settings; every control
++ -- uses the same handlers as the desktop ticket.
++ local function riskSummary()
++  local function part(tag,key)return tag.." "..(s[key.."On"]and whole(s[key.."Dollars"])or"off")end
++  return part("SL","Stop").." · "..part("TP","Target")
++ end
++ local function quantityCaption()
++  return s.Type=="Limit"and("Qty · Limit "..Market.Number(s.Limit))or"Quantity"
++ end
++ -- Retained dock refreshes are only safe while everything the dock displays is unchanged.
++ local function dockKey()
++  local held=session.Positions[s.Contract]
++  return table.concat({held and(tostring(held.Id)..":"..held.Direction..":"..held.Quantity)or"flat",tostring(s.PendingClose and s.PendingClose.Contract),
++   tostring(s.PendingOrder and s.PendingOrder.Direction),s.Type,tostring(s.Limit),riskSummary()},"|")
++ end
++ -- Shown only while the selected market has an open position: side, quantity, live P&L and Close.
++ local function positionBar(p,x,y,w,h)
++  local held=session.Positions[s.Contract];if not held then return end
++  local long=held.Direction>0
++  local bar=frame(p,"PositionBar",x,y,w,h,Color3.new(1,1,1),p.ZIndex+1);round(bar,12)
++  stroke(bar,long and Color3.fromRGB(46,214,150)or Color3.fromRGB(240,80,130)).Thickness=1.5
++  tint(bar,Color3.fromRGB(6,46,120),Color3.fromRGB(3,28,80))
++  local closeW=math.clamp(math.floor(w*.32),84,112)
++  -- The summary opens Activity (all positions, working orders and history); Close asks to confirm.
++  local info=button(bar,"OpenActivity","",0,0,w-closeW-4,h,function()s.Sheet="Activity";s.Tab="Positions";refresh()end,false,C.Text,12,bar.ZIndex+1)
++  info:SetAttribute("Sound","Open")
++  local iw=w-closeW-18
++  local side=text(info,"Position",(long and"LONG "or"SHORT ")..held.Quantity..(w>=300 and" "..held.Contract or""),10,0,math.floor(iw*.52),h,14,long and C.Green or C.Red,B,nil,info.ZIndex+1)
++  side.TextScaled=true;make("UITextSizeConstraint","TextSize",side,{MinTextSize=9,MaxTextSize=14})
++  local value=session:Pnl(held)
++  local pnl=text(info,"Pnl",Market.Signed(value),10+math.floor(iw*.52),0,math.ceil(iw*.48),h,16,value>=0 and C.Green or C.Red,N,RIGHT,info.ZIndex+1)
++  pnl.TextScaled=true;make("UITextSizeConstraint","TextSize",pnl,{MinTextSize=9,MaxTextSize=16})
++  local closing=s.PendingClose and s.PendingClose.Contract==held.Contract
++  local cb=glossy(button(bar,"ClosePosition",closing and"Closing…"or"Close",w-closeW,0,closeW,h,function()if not s.PendingClose then close(held.Contract)end end,C.Raised,C.Text,15,bar.ZIndex+1),"Pink")
++  cb.Corners.CornerRadius=UDim.new(0,12)
++  cb:SetAttribute("Sound","Open");if closing then cb:SetAttribute("Disabled",true)end
++ end
++ -- Opens the existing stop loss / take profit popup (draft, Save/Cancel and saved preferences).
++ local function riskControls(p,x,y,w,h)
++  local b=button(p,"RiskControls","",x,y,w,h,openProtection,Color3.new(1,1,1),C.Text,12,p.ZIndex+1)
++  b.Corners.CornerRadius=UDim.new(0,12);b.Border.Color=Color3.fromRGB(38,104,206);b.Border.Thickness=1.5
++  tint(b,Color3.fromRGB(8,52,134),Color3.fromRGB(4,30,86))
++  b:SetAttribute("Sound","Open")
++  local iconSize=math.clamp(h-30,18,26)
++  protectionIcon(b,"Stop",9,math.floor((h-iconSize)/2),iconSize)
++  local tx=iconSize+17;local tw=w-tx-22
++  local title=sidebarText(b,"Label","Risk controls",tx,math.floor(h/2)-17,tw,18,14);title.ZIndex=b.ZIndex+2
++  local detail=text(b,"RiskSummary",riskSummary(),tx,math.floor(h/2)+2,tw,15,11,SB.Muted,F,nil,b.ZIndex+2)
++  detail.TextScaled=true;make("UITextSizeConstraint","TextSize",detail,{MinTextSize=8,MaxTextSize=11})
++  local chevron=frame(b,"Chevron",w-18,math.floor(h/2)-7,10,14,C.Bg,b.ZIndex+2);chevron.BackgroundTransparency=1
++  line(chevron,"Upper",2,2,8,7,C.Text,2.5,chevron.ZIndex);line(chevron,"Lower",8,7,2,12,C.Text,2.5,chevron.ZIndex)
++  return b
++ end
++ local function mobileDock(x,y,w,h,wide,dims)
+   if preservedTicket and preservedTicket.Name=="TradeDock"then retainedQuantity(preservedTicket);return end
+-  local shell=frame(canvas,"TradeDock",x,y,w,h,C.Panel,10);panel(shell,C.Cyan);shell.ClipsDescendants=true
+-  shell:SetAttribute("TradingEnabled",options.Preview or session.CanTrade)
+-  gameHeading(text(shell,"Title","Place a trade",12,0,w-70,44,22,C.Text,B))
+-  local more=glossy(button(shell,"OrderSettings","···",w-54,0,44,44,function()s.Sheet=true;refresh()end,C.Raised,C.Text,20),"Navy")
+-  more.Border.Color=C.Cyan;more:SetAttribute("Sound","None")
+-  local p=make("ScrollingFrame","Fields",shell,{Position=UDim2.fromOffset(10,48),Size=UDim2.fromOffset(w-20,h-112),
+-   CanvasSize=UDim2.new(),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=3,ScrollBarImageColor3=C.Cyan,ZIndex=11})
+-  w-=24
+-  local qw=math.min(144,w*.48)
+-  sidebarText(p,"QtyLabel","Quantity",2,0,w-qw-10,44,15)
+-  quantity(p,w-qw-2,0,qw)
+-  local cw=(w-8)/2
+-  for i,d in ipairs({{"Stop","Stop loss ($)",s.StopOn,s.StopDollars,C.Red},{"Target","Take profit ($)",s.TargetOn,s.TargetDollars,C.Green}})do
+-   local bh=56
+-   local b=button(p,d[1].."Card","",(i-1)*(cw+8),52,cw,bh,openProtection,Color3.new(1,1,1))
+-   b.Corners.CornerRadius=UDim.new(0,12);b.Border.Color=d[5];b.Border.Thickness=3
+-   tint(b,Color3.fromRGB(8,40,104),Color3.fromRGB(3,22,62))
+-   b:SetAttribute("Sound","None")
+-   protectionIcon(b,d[1],8,6,18)
+-   local l=sidebarText(b,"Label",d[2],30,2,cw-38,22,12);l.ZIndex=b.ZIndex+2
+-   local t=text(b,"Distance",d[3]and Market.Money(d[4])or"Off",10,26,cw-20,26,15,d[3]and C.Text or C.Muted,N);t.ZIndex=b.ZIndex+2
++  local shell=frame(canvas,"TradeDock",x,y,w,h,Color3.new(1,1,1),10);shell.BackgroundTransparency=1
++  shell:SetAttribute("TradingEnabled",options.Preview or session.CanTrade);shell:SetAttribute("DockKey",dockKey())
++  local held=session.Positions[s.Contract]
++  local gap=8
++  if wide then
++   -- Landscape column: BUY/SELL stay pinned at the bottom; position, quantity and risk scroll if needed.
++   shell.BackgroundTransparency=0;round(shell,14);stroke(shell,Color3.fromRGB(26,88,186)).Thickness=1.5
++   tint(shell,Color3.fromRGB(6,46,120),Color3.fromRGB(3,28,80));shell.ClipsDescendants=true
++   local pad=6;local iw=w-pad*2
++   -- A caption row above the stepper only when there is height to spare; otherwise "Qty" sits beside it.
++   local captionAbove=h>=262
++   local fixed=(held and 44+gap or 0)+(captionAbove and 18 or 0)+44+6+44
++   -- Stacked BUY/SELL as approved; very short screens keep them side by side so nothing scrolls away.
++   local stacked=h>=pad*2+fixed+gap+44*2+gap
++   local bh=stacked and math.clamp(math.floor((h-pad*2-fixed-gap*2)/2),44,52)or 46
++   local actionsH=stacked and bh*2+gap or bh
++   local fields=make("ScrollingFrame","Fields",shell,{Position=UDim2.fromOffset(0,pad),Size=UDim2.fromOffset(w,h-pad*2-actionsH-gap),
++    CanvasSize=UDim2.new(),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=3,ScrollBarImageColor3=C.Cyan,ZIndex=11})
++   local yy=0
++   if held then positionBar(fields,pad,yy,iw,44);yy+=44+gap end
++   if captionAbove then
++    local caption=sidebarText(fields,"QtyLabel",quantityCaption(),pad+2,yy,iw-4,18,13);caption.ZIndex=12;yy+=18
++    quantity(fields,pad,yy,iw)
++   else
++    local caption=sidebarText(fields,"QtyLabel","Qty",pad+2,yy,34,44,13);caption.ZIndex=12
++    quantity(fields,pad+38,yy,iw-38)
++   end
++   yy+=44+6
++   riskControls(fields,pad,yy,iw,44);yy+=44
++   fields.CanvasSize=UDim2.fromOffset(0,yy)
++   tradeButtons(shell,pad,h-pad-actionsH,iw,bh,stacked)
++  else
++   -- Portrait: optional live position row, then Quantity beside Risk controls, then BUY and SELL.
++   local yy=0
++   if held then positionBar(shell,0,0,w,44);yy=50 end
++   local rowH,bh=dims.Row,dims.Button
++   local half=math.floor((w-gap)/2)
++   local card=frame(shell,"QuantityCard",0,yy,half,rowH,Color3.new(1,1,1),11);round(card,12);stroke(card,Color3.fromRGB(26,88,186)).Thickness=1.5
++   tint(card,Color3.fromRGB(6,46,120),Color3.fromRGB(3,28,80))
++   local caption=sidebarText(card,"QtyLabel",quantityCaption(),9,3,half-18,rowH-50,rowH>=64 and 13 or 12);caption.ZIndex=12
++   quantity(card,5,rowH-46,half-10)
++   riskControls(shell,half+gap,yy,w-half-gap,rowH)
++   tradeButtons(shell,0,h-bh,w,bh)
+   end
+-  level2(p,2,120,w-4,function(height)p.CanvasSize=UDim2.fromOffset(0,120+height+8)end)
+-  tradeButtons(shell,12,h-60,w,48)
+  end
+ 
+  local function protectionPopup(w,h)
+@@ -1358,11 +1444,16 @@
+     l.TextXAlignment=icon and Enum.TextXAlignment.Left or CENTER
+    end
+   elseif s.Overlay=="Menu"then
+-   local items={{"Help","How to play","Help"},{"Progress","Your progress","Accounts"},{"History","Trade history","Review"},{"ResetAccount","Reset Account","Accounts"},{"Settings","Settings","Settings"}}
+-   local _,p=popupShell(w,h,pw,#items*58,"Get Funded!","Help","Menu")
++   -- Phone "More": the destinations and actions that no longer have their own nav button.
++   local items={{"Leaderboard","Leaderboard","Leaderboard"},{"Shop","Shop","Shop"},{"Activity","Positions & orders","Positions"},
++    {"OrderSettings","Order type & Level 2","Trade"},{"History","Trade history","Review"},{"Help","How to play","Help"},
++    {"ResetAccount","Reset Account","Accounts"},{"Settings","Settings","Settings"}}
++   local _,p=popupShell(w,h,pw,#items*58,"Get Funded!","Help","More")
+    for i,t in ipairs(items) do
+     local b=option(p,t[1],pad,(i-1)*58,iw,50,false,function()
+-     if t[1]=="Progress" then navigate("Progress");return
++     if t[1]=="Leaderboard"or t[1]=="Shop"then navigate(t[1],true);return
++     elseif t[1]=="Activity"then s.Screen="Trade";s.Nav="Trade";s.Sheet="Activity";s.Tab="Positions";s.Overlay=nil
++     elseif t[1]=="OrderSettings"then s.Screen="Trade";s.Nav="Trade";s.Sheet=true;s.Overlay=nil
+      elseif t[1]=="History" then s.Screen="Trade";s.Nav="Trade";s.Sheet="Activity";s.Tab="History";s.Overlay=nil
+      else s.Overlay=t[1] end;refresh()
+     end)
+@@ -1471,7 +1562,12 @@
+  local function updateUnlockReadout()
+   local _,title,ratio,amount=objective();local pf=session.Portfolio
+   local panel=canvas:FindFirstChild("AccountSummary");local tile=panel and panel:FindFirstChild("ObjectiveCard")
+-  if tile and not (pf and pf.Failed) then tile.Title.Text=title;tile.Amount.Text=amount;tile.Track.Fill.Size=UDim2.fromScale(ratio,1) end
++  if tile and not (pf and pf.Failed) then
++   if tile:GetAttribute("Strip")then
++    tile.Amount.Text=stripGoal()
++    local track=tile:FindFirstChild("Track");if track then track.Fill.Size=UDim2.fromScale(ratio,1);track.Fill.Visible=ratio>0 end
++   else tile.Title.Text=title;tile.Amount.Text=amount;tile.Track.Fill.Size=UDim2.fromScale(ratio,1)end
++  end
+   root:SetAttribute("GoalProgress",pf and pf.Next and pf.Next.Progress)
+  end
+  local KPI_LOOK={Net={C.Blue,C.Panel,C.Cyan},Open={C.Blue,C.Panel,C.Cyan},Capital={C.Blue,C.Panel,C.Cyan},Copy={C.Blue,C.Panel,C.Cyan}}
+@@ -1486,7 +1582,7 @@
+   {"Choose your market","Open the market list. Choose BX for the Blox 500, BT for tech or BG for gold.",
+    {Desktop={"OrderTicket.Fields.ContractSelector"},Mobile={"Chart.Header.ContractSelector"}}},
+   {"Set your quantity","Start with 1 contract. More contracts mean bigger gains and losses for the same price move.",
+-   {Desktop={"OrderTicket.Fields.Quantity"},Mobile={"TradeDock.Quantity"}}},
++   {Desktop={"OrderTicket.Fields.Quantity"},Mobile={"TradeDock.QuantityCard.Quantity","TradeDock.Fields.Quantity"}}},
+   {"Place a trade","BUY to profit from a rise. SELL to profit from a fall. Stop loss and take profit attach when switched on.",
+    {Desktop={"OrderTicket.OrderActions.BuyLong","OrderTicket.OrderActions.SellShort","OrderTicket.Fields.BuyLong","OrderTicket.Fields.SellShort"},Mobile={"TradeDock.BuyLong","TradeDock.SellShort"}}},
+   {"Close your position","Close to lock in your profit or loss. The filled result updates your balance and counts toward your goals.",
+@@ -1555,7 +1651,9 @@
+   if s.Coach==4 and mobile then
+    local key;for _,k in ipairs(Market.PositionOrder)do if session.Positions[k]then key=k break end end
+    local close=key and findPath("Activity.Rows.Row1.Close"..key)
+-   targets=close and{"Activity.Rows.Row1.Close"..key}or{"TopNavigation.TradeActivity"}
++   local dock=findPath("TradeDock.PositionBar.ClosePosition")and"TradeDock.PositionBar.ClosePosition"
++    or findPath("TradeDock.Fields.PositionBar.ClosePosition")and"TradeDock.Fields.PositionBar.ClosePosition"
++   targets=dock and{dock}or close and{"Activity.Rows.Row1.Close"..key}or{"TopNavigation.TradeActivity"}
+   end
+   for _,path in ipairs(targets)do local target=findPath(path);if target then highlight(target)end end
+  end
+@@ -1591,60 +1689,174 @@
+   if not session.Stats and not options.Preview and not s.StatsRequested then s.StatsRequested=true;session:RefreshStats()end
+   StatsView.Draw(statsContext(),x,y,w,h,mobile)
+  end
++ local function tradeStatus()
++  -- Header status for exceptional states only; the account strip carries the goal.
++  if options.Preview then return "Studio preview"end
++  if not session.CanTrade then return session.Ready and "Trading paused"or "Connecting…"end
++  local row=activeRow();if row and row.Depleted then return row.Closing and"Closing positions…"or"Account failed"end
++  return session.PersistenceMode=="Local"and"Not saved"or""
++ end
++ -- One shallow account strip: live balance, open P&L and next goal (names match the desktop cards,
++ -- so the in-place market updates and goal readout reach it without a rebuild).
++ local function accountStrip(x,y,w,h,inline)
++  local sum=session:Summary();local pf=session.Portfolio;local failed=pf and pf.Failed
++  local panel=frame(canvas,"AccountSummary",x,y,w,h,Color3.new(1,1,1),3)
++  round(panel,inline and 10 or 12);stroke(panel,Color3.fromRGB(26,88,186)).Thickness=1.5
++  tint(panel,Color3.fromRGB(6,46,120),Color3.fromRGB(3,28,80))
++  local _,_,progress=objective()
++  local help=function()s.Overlay="Help";refresh()end
++  local cells={
++   {"Balance","Balance",Market.Money(sum.Balance),C.Text,help},
++   {"Unrealized","Open P&L",Market.Signed(sum.Unrealized),sum.Unrealized>=0 and SC.Green or SC.Red,help},
++   {"Objective",failed and"Account failed"or"Next goal",failed and"Tap to restart"or stripGoal(),failed and SC.Red or C.Text,
++    function()if failed then openBlown(pf.Active)else navigate("Progress")end end},
++  }
++  local row=inline and w>=420
++  local small=h<44
++  local shares={.3,.3}
++  local cx=0
++  for i,d in ipairs(cells)do
++   local goal=i==3
++   local cw=goal and w-cx or math.floor(w*shares[i])
++   if i>1 then local div=frame(panel,"Divider",cx,math.floor(h*.2),1,math.ceil(h*.6),Color3.fromRGB(44,104,200),4);div.BackgroundTransparency=.2 end
++   local cell=button(panel,d[1].."Card","",cx,0,cw,h,d[5],false,C.Text,12,4)
++   if goal then cell:SetAttribute("Strip",true)end
++   local valueName=goal and"Amount"or d[1].."Value"
++   local tx,ty,tw
++   if row then
++    local lw=math.ceil(TextService:GetTextSize(d[2],12,SF,Vector2.new(400,40)).X)+8
++    text(cell,"Label",d[2],10,0,lw,h,12,SB.Muted,SF,nil,5)
++    -- The goal keeps its full "16 / 100 trades" on one line; the progress bar takes what is left.
++    local need=math.ceil(TextService:GetTextSize(d[3],13,SF,Vector2.new(600,40)).X)+6
++    local vw=goal and math.max(40,math.min(need,cw-lw-46))or cw-lw-16
++    local v=summaryText(cell,valueName,d[3],10+lw,0,vw,h,goal and 13 or 16,d[4],true);v.TextXAlignment=Enum.TextXAlignment.Left
++    tx,ty,tw=10+lw+vw+6,math.floor(h/2)-3,cw-(10+lw+vw+6)-10
++   else
++    text(cell,"Label",d[2],9,small and 2 or 6,cw-14,small and 12 or 15,small and 10 or 12,SB.Muted,SF,nil,5)
++    local vy=small and 14 or 22
++    local vh=goal and(small and 11 or 16)or h-vy-(small and 2 or 6)
++    local v=summaryText(cell,valueName,d[3],9,vy,cw-16,vh,goal and(small and 11 or 13)or(small and 15 or 19),d[4],true);v.TextXAlignment=Enum.TextXAlignment.Left
++    tx,ty,tw=9,h-(small and 7 or 13),cw-20
++   end
++   if goal and not failed and tw>=20 then
++    local track=frame(cell,"Track",tx,ty,tw,small and 4 or 6,SC.Ink,5);round(track,3)
++    local fill=frame(track,"Fill",0,0,0,0,Color3.new(1,1,1),6);fill.Size=UDim2.fromScale(math.clamp(progress,0,1),1);round(fill,3)
++    tint(fill,Color3.fromRGB(255,236,92),Color3.fromRGB(255,176,16));fill.Visible=progress>0
++   end
++   cx+=cw
++  end
++ end
++ -- Phones: four destinations. More opens the menu with Leaderboard, Shop and the remaining actions.
++ local function phoneNav(p,w,h,wide)
++  local items={"Trade","Progress","Stats","More"}
++  local cell=w/#items
++  for i,value in ipairs(items)do
++   local selected=value=="More"and(s.Nav=="Leaderboard"or s.Overlay=="Menu"or s.Overlay=="Shop")or value~="More"and s.Nav==value and s.Overlay~="Menu"and s.Overlay~="Shop"
++   local bx=math.floor((i-1)*cell)+4;local bw=math.floor(cell)-8;local by=4;local bh=h-7
++   local b=button(p,"Nav"..value,"",bx,by,bw,bh,function()
++    if value=="More"then s.Sheet=false;s.ProtectionDraft=nil;s.Overlay="Menu";refresh()else navigate(value,true)end
++   end,Color3.new(1,1,1),C.Text,12,p.ZIndex+2)
++   sidebarSurface(b,selected,false);if fx then fx:Selected(b,selected)end
++   if not selected then b.Border.Thickness=1 end
++   if value=="More"then b:SetAttribute("Sound","Open")end
++   local iconSize=wide and math.min(26,bh-12)or math.min(26,bh-22)
++   local labelSize=wide and 14 or 11
++   local lw=wide and math.ceil(TextService:GetTextSize(value,labelSize,SF,Vector2.new(300,40)).X)+6 or bw-4
++   local ix=wide and math.max(4,math.floor((bw-iconSize-6-lw)/2))or math.floor((bw-iconSize)/2)
++   local iy=wide and math.floor((bh-iconSize)/2)or 4
++   if value=="More"then
++    local dots=frame(b,"IconMore",ix,iy,iconSize,iconSize,C.Bg,b.ZIndex+1);dots.BackgroundTransparency=1
++    local d=math.max(4,math.floor(iconSize*.22))
++    for k=-1,1 do local dot=frame(dots,"Dot",math.floor(iconSize/2-d/2+k*iconSize*.33),math.floor((iconSize-d)/2),d,d,C.Text,b.ZIndex+2);round(dot,d)end
++   else sidebarImage(b,value=="Progress"and"Accounts"or value,ix,iy,iconSize)end
++   local label=sidebarText(b,"Label",value,wide and ix+iconSize+6 or 2,wide and 0 or bh-17,wide and lw or bw-4,wide and bh or 15,labelSize)
++   label.TextXAlignment=wide and Enum.TextXAlignment.Left or CENTER
++  end
++ end
++ -- Phone Trade screen ("Arcade Clean"): compact header and account strip; the chart takes all the
++ -- remaining height above quantity/risk and BUY/SELL. Landscape moves the controls to a right column.
++ local function phoneTrade(w,h,sum,layout)
++  local wide=w>h;local pad=10;local gap=8
++  local dense=not wide and h<640;local tight=wide and h<300
++  -- No game title on phones: the header row exists only for the Activity pill or a status notice
++  -- (portrait); in landscape it holds the account strip.
++  local status=tradeStatus()
++  local working=#session:Working();local pillW=0
++  -- Landscape only: in portrait, positions/orders are reached from the position row and More.
++  local pillLabel=wide and sum.Count+working>0 and(sum.Count>0 and(sum.Count.." open")or(working..(working==1 and" order"or" orders")))or nil
++  if pillLabel then pillW=math.ceil(TextService:GetTextSize(pillLabel,14,SF,Vector2.new(400,40)).X)+50 end
++  local statusW=status~=""and math.ceil(TextService:GetTextSize(status,11,F,Vector2.new(400,40)).X)+8 or 0
++  local head=wide and(tight and 36 or 40)or(pillW>0 or statusW>0)and(dense and 36 or 40)or 0
++  local stripTop=wide and 0 or head>0 and head or 6
++  layout.Head=head;layout.Compact=wide
++  local navH=layout.NavH
++  local top=frame(canvas,"TopNavigation",0,0,w,math.max(head,1),C.Bg);top.BackgroundTransparency=1
++  -- Holds the status notice; market updates refresh TopNavigation.Account.Brand in place.
++  local acc=frame(top,"Account",0,0,w,math.max(head,1),C.Bg);acc.BackgroundTransparency=1
++  -- Activity entry point only while something is open or working; otherwise it lives in More.
++  if pillLabel then
++   local label=pillLabel
++   local ph=math.min(36,head-6)
++   local pill=glossy(button(top,"TradeActivity","",w-pad-pillW,math.floor((head-ph)/2),pillW,ph,function()
++    s.Sheet="Activity";s.Tab=sum.Count>0 and"Positions"or"Orders";refresh()end,C.Raised,C.Text,14),"Cyan")
++   pill:SetAttribute("Sound","Open")
++   sidebarImage(pill,"Positions",6,math.floor((ph-26)/2),26)
++   local count=sidebarText(pill,"Count",label,36,0,pillW-42,ph,14);count.ZIndex=pill.ZIndex+3
++  end
++  local brand
++  if wide then brand=text(acc,"Brand",status,w-pad-(pillW>0 and pillW+gap or 0)-statusW,0,statusW,head,11,C.Muted,F,RIGHT)
++  else brand=text(acc,"Brand",status,pad,0,math.max(0,w-pad*2-(pillW>0 and pillW+6 or 0)),math.max(head,1),11,C.Muted,F)end
++  brand.TextTruncate=AtEnd
++  if not wide then
++   local stripH=dense and 46 or 56
++   accountStrip(pad,stripTop,w-pad*2,stripH,false)
++   local dims={Row=dense and 62 or 66,Button=dense and 48 or 52}
++   local dockH=(session.Positions[s.Contract]and 50 or 0)+dims.Row+gap+dims.Button
++   local cy=stripTop+stripH+gap;local dockY=h-navH-gap-dockH
++   -- No placeholder rows: every remaining pixel goes to the chart's plot.
++   chartView.Inline=false
++   chart(pad,cy,w-pad*2,dockY-gap-cy,true,h<650,false)
++   layout.TradeTop=dockY
++   mobileDock(pad,dockY,w-pad*2,dockH,false,dims)
++  else
++   local stripX=pad;local stripW=w-stripX-pad-(pillW>0 and pillW+gap or 0)-(statusW>0 and statusW+gap or 0)
++   local stripH=tight and 30 or 34
++   accountStrip(stripX,math.floor((head-stripH)/2),stripW,stripH,true)
++   local colW=math.clamp(math.floor(w*.3),188,260)
++   local cy=head+4;local ch=h-cy-navH-gap;local cw=w-pad*2-colW-gap
++   chartView.Inline=true
++   chart(pad,cy,cw,ch,true,true,true)
++   layout.CoachW=cw
++   mobileDock(pad+cw+gap,cy,colW,ch,true)
++  end
++ end
+  local function mobileScreen(w,h,sum,screen)
+   local compact=w>h;local dense=h<650 and not compact
+-  local head=dense and 48 or 60;local navH=compact and 48 or dense and 52 or 58;local dockH=dense and 240 or 280
+-  if compact and(screen=="Leaderboard"or screen=="Progress")then head=0;navH=48 end
+-  local board=screen=="Progress"or screen=="Leaderboard"or screen=="Stats"
++  local head=dense and 48 or 60;local navH=compact and(h<300 and 40 or 44)or dense and 48 or 56
++  if compact and(screen=="Leaderboard"or screen=="Progress")then head=0 end
+   local layout={Head=head,NavH=navH,Compact=compact}
+-  local top=frame(canvas,"TopNavigation",0,0,w,head,C.Bg)
+-  if head==0 then top.Visible=false end
+-  local acc=button(top,"Account","",12,0,w-70,head,function()s.Overlay="Account";refresh()end,false)
+-  -- Trading header and next goal. Help explains balance and open results.
+-  local title=sidebarText(acc,"Name",board and'Get <font color="#FFD336">Funded!</font>'or"Get Funded!",0,dense and 0 or 3,w-70,dense and 26 or 30,dense and 20 or 22)
+-  title.RichText=true;title.TextXAlignment=Enum.TextXAlignment.Left
+-  local brand=text(acc,"Brand",board and(screen=="Stats"and "Current account results"or screen=="Leaderboard"and "Account balance standings"or "Ranks and title collection")or mobileBadge(),0,dense and 27 or 34,w-70,dense and 17 or 20,9,C.Muted);brand.TextTruncate=AtEnd
+-  if not board then brand.TextScaled=true;make("UITextSizeConstraint","TypeSize",brand,{MinTextSize=8,MaxTextSize=9})end
+-  if compact and screen=="Leaderboard"then brand.Visible=false end
+-  if not board then local _,_,progress=objective();progressBar(top,"ObjectiveBar",12,head-4,w-24,3,progress,C.Green)end
+-  local more=glossy(button(top,"More","···",w-54,6,44,40,function()s.Overlay="Menu";refresh()end,C.Raised,C.Text,20),"Navy")
+-  more.Border.Color=C.Cyan;more:SetAttribute("Sound","None")
+-  if screen=="Trade"then
+-   acc.Size=UDim2.fromOffset(w-118,head);title.Size=UDim2.fromOffset(w-118,title.Size.Y.Offset);brand.Size=UDim2.fromOffset(w-118,brand.Size.Y.Offset)
+-   local manage=glossy(button(top,"TradeActivity","",w-102,6,44,40,function()s.Sheet="Activity";s.Tab="Positions";refresh()end,C.Raised,C.Text,18),"Cyan")
+-   sidebarImage(manage,"Positions",7,5,30)
+-  end
+-  if screen=="Leaderboard"then
+-   leaderboardScreen(12,head+6,w-24,h-head-navH-12,true)
+-  elseif screen=="Stats"then
+-   statsScreen(12,head+6,w-24,h-head-navH-12,true)
+-  elseif board then
+-   progressScreen(12,head+6,w-24,h-head-navH-12,true)
+-  elseif compact then
+-   local dw=math.min(320,w*.42);local cx=w-dw-24;layout.CoachW=cx
+-   -- Phone safe areas can leave only ~300px of height. Keep the chart and ticket
+-   -- side by side; the header carries the account summary at this orientation.
+-   top.Size=UDim2.fromOffset(cx+12,head)
+-   acc.Size=UDim2.fromOffset(cx-94,head);title.Size=UDim2.fromOffset(cx-94,title.Size.Y.Offset)
+-   brand.Size=UDim2.fromOffset(cx,20);brand.TextScaled=false;brand.TextSize=12
+-   local brandSize=brand:FindFirstChildWhichIsA("UITextSizeConstraint");if brandSize then brandSize:Destroy()end
+-   brand.Text="Balance "..Market.Money(sum.Balance).." · Open "..Market.Signed(sum.Unrealized)
+-   more.Position=UDim2.fromOffset(cx-36,6)
+-   local manage=top:FindFirstChild("TradeActivity");if manage then manage.Position=UDim2.fromOffset(cx-84,6)end
+-   chart(12,head+8,cx,h-head-20-navH,true,true,true)
+-   mobileDock(cx+24,8,dw-12,h-navH-20,false)
++  if screen=="Trade"then phoneTrade(w,h,sum,layout)
+   else
+-   accountCards(12,head,w-24,94,true)
+-   local ah=h>=900 and 112 or 0
+-   local cy=head+104;local ch=h-cy-navH-dockH-ah-(dense and 20 or 28)
+-   chart(12,cy,w-24,ch,true,h<650,false)
+-   layout.TradeTop=cy+ch+10
+-   mobileDock(12,cy+ch+10,w-24,dockH,dense)
+-   if ah>0 and s.Sheet~="Activity"then activity(12,h-navH-ah-8,w-24,ah,true,false)end
+-  end
+-  local nx=0;local nw=w -- Five destinations retain usable touch targets in landscape too.
+-  local navigation=frame(canvas,"MobileNavigation",nx,h-navH,nw,navH,SB.Navy,25);rule(navigation,0,0,nw,SB.Cyan)
+-  nav(navigation,0,0,nw,navH,true)
++   -- Progress, Stats and Leaderboard keep their own pages; only the shared navigation changed.
++   local top=frame(canvas,"TopNavigation",0,0,w,head,C.Bg)
++   if head==0 then top.Visible=false end
++   local acc=button(top,"Account","",12,0,w-70,head,function()s.Overlay="Account";refresh()end,false)
++   local title=sidebarText(acc,"Name",'Get <font color="#FFD336">Funded!</font>',0,dense and 0 or 3,w-70,dense and 26 or 30,dense and 20 or 22)
++   title.RichText=true;title.TextXAlignment=Enum.TextXAlignment.Left
++   local brand=text(acc,"Brand",screen=="Stats"and "Current account results"or screen=="Leaderboard"and "Account balance standings"or "Ranks and title collection",0,dense and 27 or 34,w-70,dense and 17 or 20,9,C.Muted);brand.TextTruncate=AtEnd
++   if compact and screen=="Leaderboard"then brand.Visible=false end
++   local more=glossy(button(top,"More","···",w-54,6,44,40,function()s.Overlay="Menu";refresh()end,C.Raised,C.Text,20),"Navy")
++   more.Border.Color=C.Cyan;more:SetAttribute("Sound","None")
++   if screen=="Leaderboard"then
++    leaderboardScreen(12,head+6,w-24,h-head-navH-12,true)
++   elseif screen=="Stats"then
++    statsScreen(12,head+6,w-24,h-head-navH-12,true)
++   else
++    progressScreen(12,head+6,w-24,h-head-navH-12,true)
++   end
++  end
++  local navigation=frame(canvas,"MobileNavigation",0,h-navH,w,navH,SB.Navy,25);rule(navigation,0,0,w,SB.Cyan)
++  phoneNav(navigation,w,navH,compact)
+   if s.Sheet then
+    local sw=compact and math.min(390,w-30)or w
+    local sh=math.min(h-54,s.Sheet=="Activity"and 350 or s.Type=="Limit"and 540 or 475)
+@@ -1658,8 +1870,11 @@
+    done.Corners.CornerRadius=UDim.new(0,12);rule(sheet,0,48,sw,C.Cyan)
+    if s.Sheet=="Activity"then activity(sx,sy+49,sw,sh-49,true,false,32)
+    else
++    -- Market/Limit, quantity, protection and Level 2 (with its entitlement and loading states).
+     local fields=make("ScrollingFrame","Fields",sheet,{Position=UDim2.fromOffset(0,49),Size=UDim2.fromOffset(sw,sh-49),CanvasSize=UDim2.new(),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=3,ScrollBarImageColor3=C.Muted,ZIndex=32})
+-    fields.CanvasSize=UDim2.fromOffset(0,orderOptions(fields,sw,12,true))
++    local fy=orderOptions(fields,sw,12,true)
++    local depth=level2(fields,16,fy,sw-32,function(height)fields.CanvasSize=UDim2.fromOffset(0,fy+height+16)end)
++    fields.CanvasSize=UDim2.fromOffset(0,fy+depth.Height+16)
+    end
+   end
+   return layout
+@@ -1682,7 +1897,7 @@
+   preservedTicket=nil
+   if keepTicket and w==lastW and h==lastH and currentScreen()=="Trade"and root:GetAttribute("Screen")=="Trade"and root:GetAttribute("SelectedContract")==s.Contract then
+    local panel=canvas:FindFirstChild("OrderTicket")or canvas:FindFirstChild("TradeDock")
+-   if panel and panel:GetAttribute("TradingEnabled")== (options.Preview or session.CanTrade)then preservedTicket=panel end
++   if panel and panel:GetAttribute("TradingEnabled")== (options.Preview or session.CanTrade)and(panel.Name~="TradeDock"or panel:GetAttribute("DockKey")==dockKey())then preservedTicket=panel end
+   end
+   lastW=w;lastH=h
+   local scroll={}
+@@ -1702,7 +1917,7 @@
+   end
+   for _,child in ipairs(canvas:GetChildren())do if child~=preservedTicket then child:Destroy()end end
+   canvas.Size=UDim2.fromOffset(w,h)
+-  chartView:Reset()
++  chartView:Reset();chartView.Inline=false
+   if session.Contract~=s.Contract or session.Timeframe~=s.Timeframe then session:Subscribe(s.Contract,s.Timeframe)end
+   task.defer(function()if alive then for _,v in ipairs(canvas:GetDescendants())do if v:IsA("ScrollingFrame") and scroll[v:GetFullName()]then v.CanvasPosition=scroll[v:GetFullName()]end end end end)
+   local mobile=w<1000 or h<600;local sum=session:Summary()
+@@ -1933,7 +2148,7 @@
+    end
+    local top=canvas:FindFirstChild("TopNavigation")
+    if mobile and top and top:FindFirstChild("Account")and screen=="Trade"then
+-    top.Account.Brand.Text=w>h and ("Balance "..Market.Money(sum.Balance).." · Open "..Market.Signed(sum.Unrealized))or mobileBadge()
++    local brand=top.Account:FindFirstChild("Brand");if brand then brand.Text=tradeStatus()end
+    end
+    local held=session.Positions[s.Contract]
+    for _,name in ipairs({"OrderTicket","TradeDock"})do local panel=canvas:FindFirstChild(name)

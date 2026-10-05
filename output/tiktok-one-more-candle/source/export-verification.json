@@ -1,0 +1,33 @@
+{
+  "decoded_without_errors": true,
+  "metadata": {
+    "ffmpeg_version": "7.1-essentials_build-www.gyan.dev built with gcc 14.2.0 (Rev1, Built by MSYS2 project)",
+    "codec": "h264",
+    "pix_fmt": "yuv420p(tv, bt709/unknown/unknown, progressive)",
+    "audio_codec": "aac",
+    "fps": 30.0,
+    "source_size": [
+      1080,
+      1920
+    ],
+    "size": [
+      1080,
+      1920
+    ],
+    "rotate": 0,
+    "duration": 16.0
+  },
+  "audio_measurement": {
+    "input_i": "-16.17",
+    "input_tp": "-0.19",
+    "input_lra": "2.60",
+    "input_thresh": "-26.17",
+    "output_i": "-14.31",
+    "output_tp": "-1.50",
+    "output_lra": "2.60",
+    "output_thresh": "-24.31",
+    "normalization_type": "dynamic",
+    "target_offset": "0.31"
+  },
+  "bytes": 2461194
+}

@@ -1,0 +1,33 @@
+{
+  "tool": "Built-in ImageGen",
+  "prompt": "Use case: stylized-concept. Asset type: production-ready transparent sprite atlas for the colorful Roblox trading game Get Funded! Create ONE square image containing EXACTLY 16 distinct badge icons in a perfectly regular 4-column by 4-row grid, equal square cells, one centered icon per cell, generous transparent padding around each icon. No text, numbers, letters, labels, frames around cells, grid lines, or background. Actual usable game artwork, not a UI mockup. Glossy chunky toy-like 3D relief emblems, crisp navy outlines, bold readable silhouettes, cyan/emerald/purple/gold palette, front-facing orthographic consistent light from upper left, strong contrast at 40px. Increasing prestige reading left to right then top to bottom. Cells in exact order: 1 simple cyan compass diamond with upward arrow; 2 bronze shield with one rising candlestick; 3 emerald circular coin with a checkmark-shaped rising arrow; 4 blue double-chevron shield with three candles; 5 silver gear ring around cyan arrow; 6 emerald flame crest; 7 silver hexagonal shield with crossed arrows; 8 golden star medal with emerald jewel; 9 amethyst faceted diamond crest; 10 violet lightning shield with silver wings; 11 gold sunburst with upward graph motif; 12 ruby eagle-wing crest around a gold arrow; 13 platinum crown with cyan crystal; 14 gold laurel wreath around emerald bull-horn silhouette; 15 radiant crystal crown with purple wings; 16 most prestigious purple-and-gold winged celestial crown with large central cyan star and small orbiting gems. Keep each complete silhouette fully inside its cell with at least 15% padding, nothing touching neighboring cells. Transparent alpha everywhere outside emblems and in all gutters. No opaque drop shadows. The atlas will be used directly with ImageRectOffset and ImageRectSize.",
+  "assetId": "rbxassetid://114491192679289",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "robloxSize": [
+    1024,
+    1024
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "transparent": true,
+  "columnBoundaries": [
+    0,
+    256,
+    512,
+    768,
+    1024
+  ],
+  "rowBoundaries": [
+    0,
+    251,
+    499,
+    738,
+    1024
+  ],
+  "notes": "Row rectangles follow measured transparent gutters so the crown silhouettes remain complete and adjacent cells do not bleed."
+}

@@ -1,0 +1,10 @@
+{
+  "LongNameFits": true,
+  "ExactScoreFits": true,
+  "ExactScore": "+$89,999,999,999,999.98",
+  "MutedUnlockSound": true,
+  "UnlockHighlight": {
+    "Start": 4,
+    "Settled": 1.5
+  }
+}

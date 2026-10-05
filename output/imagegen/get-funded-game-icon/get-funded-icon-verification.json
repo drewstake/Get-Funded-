@@ -1,0 +1,35 @@
+{
+  "tool": "built-in image_gen",
+  "source": "C:/Users/drews/.codex/generated_images/01a0ea4e-7a65-7f90-84ea-54df3ed9428a/exec-e5c43168-717d-40ee-b32b-adef4cc960a0.png",
+  "original": {
+    "width": 1254,
+    "height": 1254
+  },
+  "files": [
+    {
+      "path": "C:\\Users\\drews\\Development\\Roblox Dev\\Get Funded!\\icons\\get-funded-icon.png",
+      "bytes": 353617,
+      "format": "png",
+      "width": 512,
+      "height": 512,
+      "channels": 3,
+      "hasAlpha": false,
+      "space": "srgb",
+      "progressive": false
+    },
+    {
+      "path": "C:\\Users\\drews\\Development\\Roblox Dev\\Get Funded!\\icons\\get-funded-icon.jpeg",
+      "bytes": 124879,
+      "format": "jpeg",
+      "width": 512,
+      "height": 512,
+      "channels": 3,
+      "hasAlpha": false,
+      "space": "srgb",
+      "progressive": false
+    }
+  ],
+  "preview": "C:\\Users\\drews\\Development\\Roblox Dev\\Get Funded!\\output\\imagegen\\get-funded-game-icon\\get-funded-icon-150px-preview.png",
+  "requirementsSource": "https://create.roblox.com/docs/production/publishing/experience-icons",
+  "requirements": "Square, at least 512x512; exported at 512x512 and additionally kept below 3 MB."
+}

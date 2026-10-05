@@ -1,0 +1,104 @@
+{
+  "image": "icons-atlas.png",
+  "width": 2048,
+  "height": 2048,
+  "cellSize": 512,
+  "icons": {
+    "cash": {
+      "x": 0,
+      "y": 0,
+      "width": 512,
+      "height": 512
+    },
+    "rebirth": {
+      "x": 512,
+      "y": 0,
+      "width": 512,
+      "height": 512
+    },
+    "speed": {
+      "x": 1024,
+      "y": 0,
+      "width": 512,
+      "height": 512
+    },
+    "time": {
+      "x": 1536,
+      "y": 0,
+      "width": 512,
+      "height": 512
+    },
+    "luck": {
+      "x": 0,
+      "y": 512,
+      "width": 512,
+      "height": 512
+    },
+    "shop": {
+      "x": 512,
+      "y": 512,
+      "width": 512,
+      "height": 512
+    },
+    "potion": {
+      "x": 1024,
+      "y": 512,
+      "width": 512,
+      "height": 512
+    },
+    "wheel": {
+      "x": 1536,
+      "y": 512,
+      "width": 512,
+      "height": 512
+    },
+    "pet": {
+      "x": 0,
+      "y": 1024,
+      "width": 512,
+      "height": 512
+    },
+    "codes": {
+      "x": 512,
+      "y": 1024,
+      "width": 512,
+      "height": 512
+    },
+    "settings": {
+      "x": 1024,
+      "y": 1024,
+      "width": 512,
+      "height": 512
+    },
+    "gift": {
+      "x": 1536,
+      "y": 1024,
+      "width": 512,
+      "height": 512
+    },
+    "upgrade": {
+      "x": 0,
+      "y": 1536,
+      "width": 512,
+      "height": 512
+    },
+    "boost": {
+      "x": 512,
+      "y": 1536,
+      "width": 512,
+      "height": 512
+    },
+    "gem": {
+      "x": 1024,
+      "y": 1536,
+      "width": 512,
+      "height": 512
+    },
+    "coin": {
+      "x": 1536,
+      "y": 1536,
+      "width": 512,
+      "height": 512
+    }
+  }
+}

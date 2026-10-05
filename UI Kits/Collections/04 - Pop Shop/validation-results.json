@@ -1,0 +1,53 @@
+{
+  "checks": [
+    {
+      "name": "27 SVG/PNG asset pairs",
+      "passed": true
+    },
+    {
+      "name": "Close and reopen shop",
+      "passed": true
+    },
+    {
+      "name": "Purchase confirmation and owned state",
+      "passed": true
+    },
+    {
+      "name": "Cancel leaves card unchanged",
+      "passed": true
+    },
+    {
+      "name": "All five shop cards accessible by scrolling",
+      "passed": true
+    },
+    {
+      "name": "Reward progress and motion toggle",
+      "passed": true
+    },
+    {
+      "name": "Reset restores initial state",
+      "passed": true
+    },
+    {
+      "name": "All image files load",
+      "passed": true
+    },
+    {
+      "name": "Mobile has no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Mobile sidebar receives pointer input",
+      "passed": true
+    },
+    {
+      "name": "Mobile purchase flow",
+      "passed": true
+    },
+    {
+      "name": "No JavaScript errors",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

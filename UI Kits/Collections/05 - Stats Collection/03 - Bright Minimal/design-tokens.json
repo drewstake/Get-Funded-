@@ -1,0 +1,60 @@
+{
+  "name": "Bright Minimal",
+  "colors": {
+    "bg": "#F8F9FD",
+    "sidebar": "#EEEBFB",
+    "surface": "#FFFFFF",
+    "card": "#FFFFFF",
+    "border": "#D8D8EC",
+    "text": "#172148",
+    "muted": "#596582",
+    "accent": "#6934D5",
+    "accent_text": "#5B28C4",
+    "gain": "#08785C",
+    "loss": "#BB245C",
+    "track": "#E7EAF2",
+    "notice": "#F0EFFA",
+    "gold": "#9A6A00",
+    "focus": "#5424B9"
+  },
+  "radius": {
+    "card": 18,
+    "control": 10,
+    "pill": 999
+  },
+  "stroke": 1,
+  "spacing": [
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    48
+  ],
+  "typography": {
+    "display": "Lilita One",
+    "body": "Segoe UI, Arial",
+    "robloxDisplay": "FredokaOne",
+    "robloxBody": "Gotham",
+    "page": 36,
+    "cardTitle": 18,
+    "value": 46,
+    "bodySize": 14,
+    "caption": 12
+  },
+  "motion": {
+    "pressMs": 80,
+    "selectionMs": 140,
+    "pressTravelPx": 1,
+    "reducedMotion": true
+  },
+  "layout": {
+    "sidebar": 216,
+    "cardPadding": 20,
+    "cardGap": 16,
+    "minimumTarget": 44,
+    "phoneBreakpoint": 760,
+    "tabletBreakpoint": 1200
+  }
+}

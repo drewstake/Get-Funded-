@@ -1,0 +1,18 @@
+{
+  "checks": {
+    "1": "Original six metric values",
+    "2": "Missing dates",
+    "3": "Partial history",
+    "4": "Unknown count",
+    "5": "Negative best day unavailable",
+    "6": "Infinity and share above 100%",
+    "7": "Native metric construction",
+    "8": "Disabled controls",
+    "9": "Progress proportions",
+    "10": "Mount update and cleanup"
+  },
+  "scope": "Compilation, aggregate formatting and unparented component construction. Full in-game visual integration is not included.",
+  "theme": "polished",
+  "passed": 10,
+  "temporaryInstancesDestroyed": true
+}
