@@ -191,6 +191,28 @@ function Funded:ResetPlayer(uid)
  e:Audit()
  return p.Account
 end
+-- Owner-only capital deposit, called on a detached engine through TransformSaved.
+-- Increasing Base with Balance preserves trading P&L and never awards profit titles.
+function Funded:GrantMoney(uid,amount,actor,receipt)
+ assert(type(amount)=="number"and amount==amount and amount%1==0 and amount>=1 and amount<=1000000000000,"Use a whole-dollar amount from 1 to 1000000000000.")
+ assert(type(actor)=="number"and actor>0 and actor%1==0,"Invalid grant issuer")
+ assert(type(receipt)=="string"and #receipt>=1 and #receipt<=64,"Invalid grant receipt")
+ local p=self:Profile(uid)
+ if p then for _,grant in ipairs(p.MoneyGrants or {})do if grant.Id==receipt then
+  assert(grant.Amount==amount and grant.Actor==actor,"Grant receipt mismatch");return grant.Balance
+ end end end
+ if not p then local ok,reason=self:Start(uid);assert(ok,reason);p=self:Profile(uid)end
+ local a=self.Engine.Accounts[p.Account]
+ assert(self:Usable(a)and not a.Liquidating,"Restart the player's blown account before using /give.")
+ assert(a.Base+amount<4e12 and a.Balance+amount<4e12,"Grant would exceed the $4 trillion account balance limit.")
+ a.Base+=amount;a.Balance+=amount;a.LossLimit=a.Base;a.Revision+=1
+ p.RunStartBalance=(p.RunStartBalance or a.Base-amount)+amount
+ self.Engine:ContractLimit(a)
+ p.MoneyGranted=(p.MoneyGranted or 0)+amount;p.MoneyGrants=p.MoneyGrants or {}
+ table.insert(p.MoneyGrants,{Id=receipt,Actor=actor,Amount=amount,Account=a.Id,Balance=a.Balance,At=os.time()})
+ while #p.MoneyGrants>64 do table.remove(p.MoneyGrants,1)end
+ self:_touch(p);return a.Balance
+end
 function Funded:Earned(p)
  local total=0 for _,id in ipairs(p.Ledger) do total+=self.Engine.Accounts[id].Realized end return total
 end
@@ -332,7 +354,17 @@ function Funded:Flag(uid,stage)
 end
 function Funded:TakeEvents(uid)
  local p=self:Profile(uid);if not p or not p.Events or #p.Events==0 then return nil end
- local events=p.Events;p.Events={};return events
+ local events=p.Events;p.Events={}
+ -- A final fill can enqueue TradeClosed before the engine latches depletion.
+ -- Decide at delivery time so the account-failed notice owns that outcome.
+ local failed={}
+ for _,event in ipairs(events)do if event.Kind=="Depleted"then failed[event.Tier]=true end end
+ local visible={}
+ for _,event in ipairs(events)do
+  local a=event.Account and self.Engine.Accounts[event.Account]
+  if event.Kind~="TradeClosed"or not(event.Reason=="Account depleted"or failed[event.Account]or a and a.Depleted)then table.insert(visible,event)end
+ end
+ return #visible>0 and visible or nil
 end
 function Funded:SetProtectionPreferences(uid,value)
  local p=self:Profile(uid);if not p then return false,"Wait for your account to load." end
@@ -395,9 +427,24 @@ function Funded.Perform(engine,owner,req)
  elseif req.Action=="Close" then
   local p=a.Positions[req.Contract];if not p then return false,"No open position." end
   engine:CancelAll(owner,req.Contract);p.Triggered="Player close";p.Stop=nil;p.Target=nil
-  return engine:Submit(owner,{Contract=req.Contract,Direction=-p.Direction,Quantity=math.min(p.Quantity,engine.Config.MaxPlayerQuantity),Type="Market",ReduceOnly=true})
+  local ok,result=engine:Submit(owner,{Contract=req.Contract,Direction=-p.Direction,Quantity=engine.Config.PlayerExecution and p.Quantity or math.min(p.Quantity,engine.Config.MaxPlayerQuantity),Type="Market",ReduceOnly=true})
+  if ok and result.Remaining>0 and a.Positions[req.Contract]then a.Positions[req.Contract].ExitOrder=result.Id end
+  return ok,result
  end
  return false,"Request rejected."
 end
-function Funded.Describe(result) return result.Filled>0 and string.format("Filled %d @ %.2f",result.Filled,result.Average) or result.Status end
+function Funded.Describe(result)
+ local filled,remaining,cancelled=result.Filled or 0,result.Remaining or 0,result.Cancelled or 0
+ local requested=filled+remaining+cancelled
+ local prefix=result.Amended and string.format("Limit %s moved to %.2f · ",result.Direction==1 and "Buy"or "Sell",result.Price)or ""
+ if result.Queued then return prefix..string.format("Executing %d contracts · %d filled, %d remaining. View or cancel in Orders.",requested,filled,remaining)end
+ if cancelled>0 then
+  local lead=filled>0 and string.format("Partially filled %d of %d @ %.2f",filled,requested,result.Average) or "No fill"
+  return prefix..string.format("%s · %d unfilled contracts cancelled (available liquidity or execution limits).",lead,cancelled)
+ elseif filled>0 and remaining>0 then
+  return prefix..string.format("Partially filled %d of %d @ %.2f · %d still working.",filled,requested,result.Average,remaining)
+ end
+ if result.Amended and filled==0 and remaining>0 then return prefix..string.format("No new fills · %d still working.",remaining)end
+ return prefix..(filled>0 and string.format("Filled %d @ %.2f",filled,result.Average) or result.Status or "Working")
+end
 return Funded

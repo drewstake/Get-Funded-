@@ -4,6 +4,7 @@ Engine.__index = Engine
 local TradeStats=require(script.Parent.TradeStats)
 local Protection=require(game.ReplicatedStorage.MarketReign.TradeProtection)
 local ContractLimits=require(game.ReplicatedStorage.MarketReign.ContractLimits)
+local PlayerExecution=require(script.Parent.PlayerExecution)
 local function finite(n) return type(n)=="number" and n==n and math.abs(n)<1e12 end
 local function integer(n) return finite(n) and n%1==0 end
 local function sortedKeys(t)
@@ -117,6 +118,8 @@ end
 function Engine:Cancel(owner,id)
  local o=self.Orders[id]
  if not o or o.Owner~=owner then return false,"Order is no longer working." end
+ local p=self.Accounts[owner].Positions[o.Contract]
+ if o.ReduceOnly and p and p.ExitOrder==o.Id and p.Triggered=="Player close"then p.ExitOrder=nil;p.Triggered=nil end
  o.Cancelled+=o.Remaining o.Remaining=0 self:_retire(o,"Cancelled")
  self.Accounts[owner].Revision+=1
  self:_cleanBook(self.Books[o.Contract])
@@ -163,7 +166,7 @@ function Engine:_fillAccount(o,price,qty,tradeId)
   -- A saved account from before lifetime stats is migrated before this execution changes its ledger.
   if a.Player and (type(a.Stats)~="table" or a.Stats.V~=TradeStats.Version or a.Stats.DayV~=1) then TradeStats.Reconcile(self,a,os.time()) end
   realized=(price-p.Entry)*closed*p.Direction*b.Spec.Multiplier
-  a.Balance+=realized a.Realized+=realized
+  a.Realized+=realized;a.Balance=a.Base+a.Realized
   self:ContractLimit(a)
   -- Persist eligibility independently of the bounded display history, including break-even closes.
   a.CompletedTrades=(a.CompletedTrades or #a.History)+1
@@ -186,10 +189,10 @@ function Engine:_fillAccount(o,price,qty,tradeId)
  end
  p=a.Positions[o.Contract]
  if p and not o.ReduceOnly and p.Direction==side then
-  -- Entry SL/TP distances apply from the new average price, except a level the player moved by hand: it keeps
-  -- its exact price when the position grows and still protects the whole updated quantity.
-  if o.StopTicks and not p.ManualStop then p.Stop=math.round((p.Entry-side*o.StopTicks*b.Spec.Tick)/b.Spec.Tick)*b.Spec.Tick end
-  if o.TargetTicks and not p.ManualTarget then p.Target=math.round((p.Entry+side*o.TargetTicks*b.Spec.Tick)/b.Spec.Tick)*b.Spec.Tick end
+  -- Existing player protections keep their exact prices through every scale-in fill.
+  -- Only absent levels initialize from the ticket; both cover the updated full quantity.
+  if o.StopTicks and not p.ManualStop and (not a.Player or p.Stop==nil)then p.Stop=math.round((p.Entry-side*o.StopTicks*b.Spec.Tick)/b.Spec.Tick)*b.Spec.Tick end
+  if o.TargetTicks and not p.ManualTarget and (not a.Player or p.Target==nil)then p.Target=math.round((p.Entry+side*o.TargetTicks*b.Spec.Tick)/b.Spec.Tick)*b.Spec.Tick end
  end
  o.Remaining-=qty o.Filled+=qty o.Notional+=price*qty
  a.Revision+=1
@@ -288,6 +291,7 @@ function Engine:_trade(b,incoming,resting,qty)
  local trade={Id=self.NextTrade,Time=self.Time,Step=self.Step,Contract=b.Key,Price=price,Ticks=tick,Quantity=qty,
   Buyer=incoming.Direction==1 and incoming.Owner or resting.Owner,Seller=incoming.Direction==-1 and incoming.Owner or resting.Owner}
  self:_fillAccount(incoming,price,qty,trade.Id) self:_fillAccount(resting,price,qty,trade.Id)
+ PlayerExecution.Record(self,self.Accounts[incoming.Owner],b,incoming.Direction,qty)
  local prior=b.Last
  if prior then
   if tick>prior then b.Up+=1 elseif tick<prior then b.Down+=1 end
@@ -348,8 +352,10 @@ function Engine:Submit(owner,request,internal)
  local b=self.Books[request.Contract]
  local side,qty,kind=request.Direction,request.Quantity,request.Type
  if not b or (side~=1 and side~=-1) or not integer(qty) or qty<1 then return false,"Choose a market, Buy or Sell, and a whole number of contracts starting at 1." end
- if not a.Player and qty>10000 then return false,"Invalid quantity." end
+ if not a.Player and qty>(a.LiquidityProvider and 100000000 or 10000) then return false,"Invalid quantity." end
  if kind~="Market" and kind~="Limit" and kind~="Stop" then return false,"Use Market, Limit or Stop." end
+ local execution=request.Execution or (request.ReduceOnly==true and "Sliced" or "Immediate")
+ if execution~="Immediate"and execution~="Sliced"then return false,"Choose immediate or sliced execution."end
  local p=a.Positions[b.Key]
  local reducing=request.ReduceOnly==true
  if reducing and (not p or p.Direction==side or qty>p.Quantity) then return false,"No matching position to reduce." end
@@ -392,12 +398,16 @@ function Engine:Submit(owner,request,internal)
   end
  end
  if not a.Player and not reducing and not self:Exposure(a,b.Key,side,qty) then return false,"Insufficient margin or inventory capacity." end
+ if kind=="Limit"and execution=="Immediate"and not PlayerExecution.StandardLimitAllowed(self,a,b,{Direction=side,Contract=b.Key},price,qty)then
+  return false,"Limit order exceeds current execution safeguards. Choose a non-marketable price, reduce quantity, or use In slices. No order placed."
+ end
  self:_pruneBook(b)
  local opposing=side==1 and b.Asks or b.Bids
  self.NextOrder+=1
  local o={Id=self.NextOrder,Priority=self:_priority(),Owner=owner,Contract=b.Key,Direction=side,Original=qty,Remaining=qty,Filled=0,Cancelled=0,Notional=0,
   Price=price,Type=kind,Status="Working",Time=self.Time,Reference=opposing[1] and opposing[1].Price or b.Last or b.Reference,
   StopTicks=request.StopTicks,TargetTicks=request.TargetTicks,ReduceOnly=reducing,Expires=request.Expires,
+  Execution=execution,Immediate=internal and internal.Immediate or nil,
   Link=integer(request.Link) and request.Link or nil} -- server-set lead order id for copied orders
  self.Orders[o.Id]=o a.OpenOrders[o.Id]=true
  if kind=="Stop" then
@@ -414,11 +424,18 @@ function Engine:Submit(owner,request,internal)
 end
 function Engine:_match(a,b,o)
  self:_pruneBook(b)
+ local wasQueued=o.Queued;o.Queued=nil
  local side=o.Direction;local reducing=o.ReduceOnly
+ local managed=a.Player and self.Config.PlayerExecution
+ local sliced=o.Execution=="Sliced"or wasQueued and o.Execution==nil
+ local allowance=managed and math.min(sliced and self.Config.PlayerExecution.SliceContracts or math.huge,PlayerExecution.Budget(self,a,b,o))or math.huge
+ local limited=false
+ if managed and o.Type=="Limit" and not PlayerExecution.Allows(self,b,o.Price,side)then limited=true end
  local opposing=side==1 and b.Asks or b.Bids
  for _,level in ipairs(opposing)do
   if o.Remaining<=0 or self:_available(o,false)<=0 then break end
   if o.Type=="Limit"and (level.Price-o.Price)*side>0 then break end
+  if managed and (allowance<=0 or not PlayerExecution.Allows(self,b,level.Price,side))then limited=true;break end
   for _,resting in ipairs(level.Orders)do
    local incoming=self:_available(o,false)
    if o.Remaining<=0 or incoming<=0 then break end
@@ -427,11 +444,17 @@ function Engine:_match(a,b,o)
     if resting.Owner==o.Owner or (a.Group and ra.Group==a.Group)or (a.ProfileId and ra.ProfileId==a.ProfileId)then
      resting.Cancelled+=resting.Remaining;resting.Remaining=0;self:_retire(resting,"Self-trade prevented");ra.Revision+=1
     else
+     -- A player's remote resting quote cannot become a new price anchor simply
+     -- because a bot sent a market order during a temporary gap in liquidity.
+     if ra.Player and not PlayerExecution.Allows(self,b,level.Price,side)then continue end
      local available=self:_available(resting,true)
      if available<=0 then
       resting.Cancelled+=resting.Remaining;resting.Remaining=0;self:_retire(resting,"No longer eligible");ra.Revision+=1
      else
-      self:_trade(b,o,resting,math.min(incoming,available))
+      local quantity=math.min(incoming,available,allowance)
+      if quantity<=0 then limited=true;break end
+      self:_trade(b,o,resting,quantity);allowance-=quantity
+      if allowance<=0 and o.Remaining>0 then limited=true end
       if resting.Remaining==0 then self:_retire(resting,"Filled")end
      end
     end
@@ -439,14 +462,19 @@ function Engine:_match(a,b,o)
   end
  end
  if o.Remaining==0 then if self.Orders[o.Id]then self:_retire(o,"Filled")end
- elseif o.Type=="Market"or self:_available(o,true)<=0 then
+ elseif self:_available(o,true)>0 and managed and sliced and not o.Immediate
+  and (o.Type=="Market"
+   or o.Type=="Limit" and limited)then
+  o.Queued=true;o.Status="Executing in slices"
+ elseif o.Type=="Market"or self:_available(o,true)<=0 or limited and not(o.Type=="Limit"and o.Execution=="Immediate")then
   o.Cancelled+=o.Remaining;o.Remaining=0;self:_retire(o,o.Filled>0 and "Partial / IOC"or "No liquidity")
  else self:_rest(b,o)end
  self:_pruneBook(b);a.Revision+=1
  local average=o.Filled>0 and o.Notional/o.Filled or nil
- return true,{Id=o.Id,Filled=o.Filled,Remaining=o.Remaining,Cancelled=o.Cancelled,Average=average,Status=o.Status,
+ return true,{Id=o.Id,Filled=o.Filled,Remaining=o.Remaining,Cancelled=o.Cancelled,Average=average,Status=o.Status,Queued=o.Queued,
   Slippage=average and (average-o.Reference*b.Spec.Tick)*side or 0}
 end
+function Engine:ProcessPlayerOrders()PlayerExecution.Process(self)end
 function Engine:ProcessStops()
  -- Bounded queue also handles cascades; deferred tails continue next scheduler step.
  local processed=0
@@ -459,7 +487,7 @@ function Engine:ProcessStops()
     self:CancelAll(a.Id,item.Contract)
     local target=p.Triggered=="Take profit"and p.Target
     local ok,result=self:Submit(a.Id,{Contract=item.Contract,Direction=-p.Direction,
-     Quantity=math.min(p.Quantity,a.Player and self.Config.MaxPlayerQuantity or 10000),
+     Quantity=a.Player and self.Config.PlayerExecution and p.Quantity or math.min(p.Quantity,a.Player and self.Config.MaxPlayerQuantity or 10000),
      Type=target and "Limit"or "Market",Price=target,ReduceOnly=true})
     if ok and result.Remaining>0 then p.ExitOrder=result.Id end
    end
@@ -470,8 +498,8 @@ end
 -- Triggered stop entries become ordinary market orders, in order-id sequence. While its market order is
 -- checked the stop stops reserving capacity, so Submit applies every current rule once (contract cap, buying
 -- power, depletion, order limits): a stop can never fill past the cap. A rejection ends the stop. If the
--- book is momentarily empty, the unfilled rest stays triggered (and reserved) and retries for a few
--- simulated seconds, like a resting stop-market order, before it is cancelled for lack of liquidity.
+-- Explicit sliced stops retain their remainder in the execution queue. Standard stops cancel
+-- unfilled quantity after their immediate attempt; the short retry path supports legacy orders.
 Engine.StopRetrySeconds=5
 function Engine:_triggerStops()
  local ready={}
@@ -482,15 +510,26 @@ function Engine:_triggerStops()
   local o=self.Orders[id]
   if o then
    local a=self.Accounts[o.Owner] local b=self.Books[o.Contract]
+   if self.Config.PlayerExecution and o.Execution=="Sliced"then
+    local triggerPrice=o.Price*b.Spec.Tick
+    self:_stopIndex()[o.Contract][o.Id]=nil
+    o.Type="Market";o.Price=nil;o.Triggered=nil
+    local _,result=self:_match(a,b,o)
+    a.Triggers=a.Triggers or {}
+    table.insert(a.Triggers,1,{Id=o.Id,Contract=o.Contract,Direction=o.Direction,Quantity=o.Original,Price=triggerPrice,
+     Ok=result.Filled>0 or result.Queued==true,Filled=result.Filled,Average=result.Average,Queued=result.Queued,Remaining=result.Remaining,Time=self.Time})
+    if #a.Triggers>8 then table.remove(a.Triggers)end
+    continue
+   end
    a.OpenOrders[o.Id]=nil
    local ok,result=self:Submit(o.Owner,{Contract=o.Contract,Direction=o.Direction,Quantity=o.Remaining,Type="Market",
-    StopTicks=o.StopTicks,TargetTicks=o.TargetTicks,Link=o.Link})
+    StopTicks=o.StopTicks,TargetTicks=o.TargetTicks,Link=o.Link},{Immediate=true})
    local filled=ok and result.Filled or 0
    if filled>0 then
     o.Remaining-=filled o.Cancelled+=filled -- converted into the child market order that holds the fill
     o.Converted=(o.Converted or 0)+filled o.ConvertedNotional=(o.ConvertedNotional or 0)+result.Average*filled
    end
-   local waiting=ok and o.Remaining>0 and self.Time-o.Triggered<Engine.StopRetrySeconds and not a.Locked
+   local waiting=ok and o.Execution~="Immediate"and o.Remaining>0 and self.Time-o.Triggered<Engine.StopRetrySeconds and not a.Locked
    if waiting then a.OpenOrders[o.Id]=true
    else
     local status=not ok and "Rejected" or o.Remaining>0 and (filled>0 or o.Converted) and "Partial / IOC" or o.Remaining>0 and "No liquidity" or "Triggered"
@@ -547,10 +586,19 @@ function Engine:AmendOrder(owner,request)
  if math.abs(ticks-last)>last*self.Config.PriceBandFraction then return false,"Limit is outside the price band." end
  if not o.ReduceOnly and self:OrderCapacity(a,o.Contract,o.Direction,o.StopTicks,o.Id)<o.Remaining then return false,"Account contract limit changed. Cancel another order first." end
  if ticks==o.Price then return true,"Limit price is unchanged."end
+ if o.Execution=="Immediate"and not PlayerExecution.StandardLimitAllowed(self,a,b,o,ticks,o.Remaining)then
+  return false,"Move rejected by current execution safeguards. Your original limit order is unchanged. Try a non-marketable price or wait for capacity."
+ end
  self:_unrest(b,o)
  o.Price=ticks;o.Time=self.Time;o.Priority=self:_priority()
- self:_match(a,b,o)
- return true,string.format("Limit %s moved to %.2f%s",o.Direction==1 and "Buy" or "Sell",price,o.Remaining==0 and " · filled" or "")
+ local filled,notional,cancelled=o.Filled,o.Notional,o.Cancelled
+ local ok,result=self:_match(a,b,o)
+ -- Report only this amendment's executions, not fills from before the drag.
+ -- Zero remaining can also mean cancellation; it does not prove a full fill.
+ result.Filled=o.Filled-filled;result.Cancelled=o.Cancelled-cancelled
+ result.Average=result.Filled>0 and (o.Notional-notional)/result.Filled or nil
+ result.Amended=true;result.Direction=o.Direction;result.Price=price
+ return ok,result
 end
 function Engine:AmendProtection(owner,request)
  local a=self.Accounts[owner]
@@ -562,6 +610,7 @@ function Engine:AmendProtection(owner,request)
   return false,"Protection already triggered, cancelled or position closed."
  end
  local creating=request.Create==true
+ if request.ExpectedQuantity~=nil and request.ExpectedQuantity~=p.Quantity then return false,"Position size changed while dragging. Please try again."end
  if creating and (p[field]~=nil or request.ExpectedPrice~=nil or request.ExpectedQuantity~=p.Quantity)then return false,"Position or protection changed. Please try again."end
  if not creating and (not p[field] or not finite(request.ExpectedPrice) or math.abs(request.ExpectedPrice-p[field])>b.Spec.Tick*0.00001) then
   return false,"Protection changed while dragging. Please try again."
@@ -597,19 +646,27 @@ function Engine:CancelProtection(owner,id,field)
 end
 function Engine:Snapshot(owner,key,timeframe,full)
  local a=self.Accounts[owner] local positions,orders={},{}
+ local protectiveExits={}
  for _,symbol in ipairs(self.Config.ContractOrder) do
   local p=a.Positions[symbol]
   if p then
    positions[symbol]=copy(p)
    positions[symbol].Unrealized=((self.Books[symbol].Last or self.Books[symbol].Reference)*self.Books[symbol].Spec.Tick-p.Entry)*p.Quantity*p.Direction*self.Books[symbol].Spec.Multiplier
-   for _,field in ipairs({"Stop","Target"}) do if p[field] then table.insert(orders,{Id=p.Id,Contract=symbol,Quantity=p.Quantity,
-    Kind=field=="Stop" and "Stop loss" or "Take profit",Price=p[field],Protection=field,Status=p.Triggered or "Armed"}) end end
+   for _,field in ipairs({"Stop","Target"}) do if p[field] then
+    local kind=field=="Stop"and "Stop loss"or "Take profit"
+    local closing=p.Triggered==kind
+    local exit=p.ExitOrder and self.Orders[p.ExitOrder]
+    if closing and exit and exit.ReduceOnly and exit.Contract==symbol then protectiveExits[exit.Id]=true end
+    table.insert(orders,{Id=p.Id,Contract=symbol,Quantity=p.Quantity,
+     Kind=kind..(closing and (p.Direction==-1 and " · closing short"or " · closing long")or ""),Price=p[field],Protection=field,
+     Closing=closing,Status=closing and "Closing · waiting for fill"or "Armed"})
+   end end
   end
  end
  for _,id in ipairs(sortedKeys(a.OpenOrders)) do
-  local o=self.Orders[id] if o then table.insert(orders,{Id=id,Contract=o.Contract,Quantity=o.Remaining,Original=o.Original,Filled=o.Filled,
-   Kind=(o.Type=="Stop" and "Stop " or "Limit ")..(o.Direction==1 and "Buy" or "Sell"),Type=o.Type,Direction=o.Direction,
-   Price=o.Price*self.Books[o.Contract].Spec.Tick,Status=o.Type=="Stop" and (o.Triggered and "Triggered" or "Armed") or o.Filled>0 and "Partial" or "Working"}) end
+  local o=self.Orders[id] if o and not protectiveExits[id]then table.insert(orders,{Id=id,Contract=o.Contract,Quantity=o.Remaining,Original=o.Original,Filled=o.Filled,
+   Kind=(o.Type=="Stop" and "Stop " or o.Type=="Market" and "Market " or "Limit ")..(o.Direction==1 and "Buy" or "Sell"),Type=o.Type,Direction=o.Direction,Queued=o.Queued,Execution=o.Execution,
+   Price=o.Price and o.Price*self.Books[o.Contract].Spec.Tick or nil,Status=o.Queued and "Executing in slices"or o.Type=="Stop" and (o.Triggered and "Triggered" or "Armed") or o.Filled>0 and "Partial" or "Working"}) end
  end
  local quotes={};local dayStart=math.floor(self.Time/86400)*86400
  for _,symbol in ipairs(self.Config.ContractOrder) do

@@ -225,6 +225,7 @@ function T.Run()
   for _,aid in ipairs(restored.AccountOrder)do if not restored.Accounts[aid].Player then restored:CancelAll(aid)end end
   restored:ProcessStops() -- flush any participant exits carried in the checkpoint
   local top=o.Price*restored.Books.BX.Spec.Tick
+  restored.Books.BX.FairReference=o.Price -- This fixture moves fair value to the stop, not just the last trade.
   submit(restored,"t:maker",{Contract="BX",Direction=-1,Quantity=1000,Type="Limit",Price=top})
   submit(restored,"t:taker",{Contract="BX",Direction=1,Quantity=1,Type="Market"});restored:ProcessStops()
   assert(not restored.Orders[armed.Id] and restored.Accounts[id].Positions.BX and restored.Accounts[id].Positions.BX.Quantity==2,"Restored stop did not trigger")

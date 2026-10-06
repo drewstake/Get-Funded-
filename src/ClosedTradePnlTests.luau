@@ -46,9 +46,9 @@ function Tests.Run()
    local position=e.Accounts[id].Positions.BX;local positionId=position.Id
    local average=cost/120;near(position.Entry,average)
    assert(not f:TakeEvents(uid),"Entries should not announce a close")
-   -- Five counterpart orders split one close into fills, across the 100-contract close batch limit.
+   -- Offer 100 first, then the final 20 on a later step to exercise a partial close.
    local proceeds=0
-   for _,q in ipairs({10,15,25,50,20})do
+   for _,q in ipairs({10,15,25,50})do
     local price=5826.5+side*move
     Liquidity.Offer(e,"BX",side,q,price);proceeds+=q*price
    end
@@ -56,7 +56,8 @@ function Tests.Run()
    assert(F.Perform(e,id,{Action="Close",Contract="BX"}))
    assert(e.Accounts[id].Positions.BX.Quantity==20)
    assert(not f:TakeEvents(uid),"A partial fill announced the whole trade closed")
-   e:AdvanceClock(e.Config.StepSeconds);assert(not e.Accounts[id].Positions.BX)
+   local finalPrice=5826.5+side*move;Liquidity.Offer(e,"BX",side,20,finalPrice);proceeds+=20*finalPrice
+   e:AdvanceClock(e.Config.StepSeconds);e:ProcessPlayerOrders();assert(not e.Accounts[id].Positions.BX)
    local expected=(proceeds-cost)*side*50;local ev=closed(f,expected,120)
    assert(ev.PositionId==positionId and ev.Reason=="Player close")
    near(e.Accounts[id].Realized-before,expected);near(ev.Balance,e.Accounts[id].Balance);e:Audit()
@@ -120,9 +121,9 @@ function Tests.Run()
    local p=e.Accounts[id].Positions.BX;p.Triggered=reason
    local first=reason=="Take profit"and 5828 or 5822
    if reason=="Take profit"then p.Target=first-1 end
-   Liquidity.Offer(e,"BX",1,1,first);e:AdvanceClock(e.Config.StepSeconds)
+   Liquidity.Offer(e,"BX",1,1,first);e:AdvanceClock(e.Config.StepSeconds);e:ProcessPlayerOrders()
    assert(e.Accounts[id].Positions.BX and not f:TakeEvents(uid))
-   Liquidity.Offer(e,"BX",1,3,first-1);e:AdvanceClock(e.Config.StepSeconds)
+   Liquidity.Offer(e,"BX",1,3,first-1);e:AdvanceClock(e.Config.StepSeconds);e:ProcessPlayerOrders()
    local ev=closed(f,((first-5825)+3*(first-1-5825))*50,4);assert(ev.Reason==reason);e:Audit()
   end)
  end

@@ -69,12 +69,12 @@ return function()
  for _,o in ipairs(e:Snapshot(a.Id,"BX","1m",false).Orders)do if o.Protection and o.Id==held.Id and o.Quantity==5 then covered+=1 end end
  check(covered==2,"SL and TP cover the updated quantity")
  check(e:CancelProtection(a.Id,held.Id,"Stop") and not held.Stop and not held.ManualStop,"cancelling a moved SL clears its manual flag")
- -- Protection that was never moved still follows the ticket distance from the new average entry.
+ -- Ticket-created protection also keeps its original price when the average entry changes.
  check(Liquidity.Perform(e,"other",{Action="Place",Contract="BX",Direction=1,Quantity=1,Type="Market",StopDollars=100}),"other opens")
  local q=e.Accounts.other.Positions.BX local first=q.Stop
  book.Last=book.Reference+16
  check(Liquidity.Perform(e,"other",{Action="Place",Contract="BX",Direction=1,Quantity=1,Type="Market",StopDollars=100}),"other adds")
- check(q.Stop~=first and q.Stop==math.round((q.Entry-8*spec.Tick)/spec.Tick)*spec.Tick,"unmoved SL follows the new average entry")
+ check(q.Stop==first,"ticket-created SL preserves its exact price after adding")
  e:Audit()
  return {Passed=true,Cases=n}
 end

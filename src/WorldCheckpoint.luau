@@ -19,7 +19,9 @@ local Encoding=game:GetService("EncodingService")
 -- Pre-V9 pending player limits are cancelled during migration rather than retroactively matched.
 -- V10 adds permanent reward grants, player resets and disconnect accounting. Older writers
 -- must fail closed so they cannot discard an acknowledged summary or reset a granted bonus.
-local Checkpoint={Version=10,Readable={[1]=true,[2]=true,[3]=true,[4]=true,[5]=true,[6]=true,[7]=true,[8]=true,[9]=true,[10]=true}}
+-- V11 adds scalpers with their own entry/exit state. Older writers must not resume them as generic traders.
+-- V12 persists queued market/limit execution and aggregate budgets. Older matching engines must fail closed.
+local Checkpoint={Version=12,Readable={[1]=true,[2]=true,[3]=true,[4]=true,[5]=true,[6]=true,[7]=true,[8]=true,[9]=true,[10]=true,[11]=true,[12]=true}}
 local function digest(raw)
  local bytes=Encoding:ComputeStringHash(raw,Enum.HashAlgorithm.Sha256)
  return (bytes:gsub(".",function(c)return string.format("%02x",string.byte(c))end))
@@ -59,7 +61,7 @@ local function rename(value,map,field)
 end
 function Checkpoint.Capture(engine,population)
  local e={Accounts={},Books={},Orders={},Profiles=clone(engine.Profiles or {})}
- for _,key in ipairs({"Seed","Time","Step","NextOrder","NextPriority","NextTrade","TotalVolume","TradeHash","PendingStops"})do e[key]=clone(engine[key])end
+ for _,key in ipairs({"Seed","Time","Step","NextOrder","NextPriority","NextTrade","TotalVolume","TradeHash","PendingStops","Execution"})do e[key]=clone(engine[key])end
  for _,id in ipairs(engine.AccountOrder)do
   local a=clone(engine.Accounts[id]);a.OpenOrders=nil
   -- Bot histories are display-only; balances, cash ledger and inventory are retained exactly.
@@ -83,6 +85,15 @@ function Checkpoint.Restore(snapshot,currentConfig)
  for old,name in pairs(map)do if old~=name then snapshot=rename(snapshot,map) break end end
  -- Preserve saved behavior except explicit, versioned migrations; presentation cadence may change.
  local config=clone(snapshot.Config)
+ local upgradeReserves=(config.ReservePopulationVersion or 0)<(currentConfig.ReservePopulationVersion or 0)
+ if upgradeReserves then config.Reserve=clone(currentConfig.Reserve);config.ReservePopulationVersion=currentConfig.ReservePopulationVersion end
+ config.PlayerExecution=clone(currentConfig.PlayerExecution)
+ local upgradeScalpers=(config.ScalperPopulationVersion or 0)<(currentConfig.ScalperPopulationVersion or 0)
+ if upgradeScalpers then
+  config.ScalpersPerInstrument=currentConfig.ScalpersPerInstrument
+  config.ScalperPopulationVersion=currentConfig.ScalperPopulationVersion
+  config.Scalper=clone(currentConfig.Scalper)
+ end
  local upgradeMakers=(config.MakerPopulationVersion or 0)<(currentConfig.MakerPopulationVersion or 0)
  if upgradeMakers then
   config.MakersPerInstrument=currentConfig.MakersPerInstrument
@@ -109,14 +120,14 @@ function Checkpoint.Restore(snapshot,currentConfig)
   end
  end
  -- MaxCandles only bounds chart history (matching never reads candles), so a restored world adopts the current limit.
- for _,key in ipairs({"BroadcastSeconds","SimulationSpeed","MaxCatchupSteps","MaxCandles","MaxPlayerQuantity","MaxPlayerInventory","MaxPlayerOrders","DepthLevels","MakerQuotePolicyVersion","MakerMinRestSeconds","MakerRepriceTicks"})do config[key]=currentConfig[key]end
+ for _,key in ipairs({"BroadcastSeconds","SimulationSpeed","MaxCatchupSteps","MaxCandles","MaxPlayerQuantity","MaxPlayerInventory","MaxPlayerOrders","DepthLevels","MakerQuotePolicyVersion","MakerMinRestSeconds","MakerRepriceTicks","MakerQuoteSizeMultiplier","MakerReplenishSeconds","MakerDecisionMultiplier"})do config[key]=currentConfig[key]end
  -- Simulated margin is buying-power policy; contract economics and all saved ledgers stay intact.
  for key,spec in pairs(config.Contracts) do
   local current=currentConfig.Contracts[key] or currentConfig.LegacyContracts[key]
   if current then spec.Margin=current.Margin end
  end
  local data=snapshot.Engine local engine=Engine.new(config,data.Seed)
- for _,key in ipairs({"Time","Step","NextOrder","NextTrade","TotalVolume","TradeHash","PendingStops"})do engine[key]=clone(data[key])end
+ for _,key in ipairs({"Time","Step","NextOrder","NextTrade","TotalVolume","TradeHash","PendingStops","Execution"})do engine[key]=clone(data[key])end
  engine.NextPriority=data.NextPriority or data.NextOrder
  for _,a in ipairs(data.Accounts)do
   local account=clone(a);account.OpenOrders={}
@@ -133,11 +144,13 @@ function Checkpoint.Restore(snapshot,currentConfig)
  local prior=0
  for _,order in ipairs(data.Orders)do
   local o=clone(order)
+  -- Preserve execution behavior for orders placed before the explicit choice existed.
+  o.Execution=o.Execution or "Sliced"
   assert(o.Id>prior and o.Remaining>0 and engine.Accounts[o.Owner]and engine.Books[o.Contract],"Invalid saved resting order")
   prior=o.Id engine.Orders[o.Id]=o engine.Accounts[o.Owner].OpenOrders[o.Id]=true
   o.Priority=o.Priority or o.Id
   engine.NextPriority=math.max(engine.NextPriority,o.Priority)
-  if o.Type=="Limit"and not(engine.Accounts[o.Owner].Player and snapshot.Version<9)then engine:_rest(engine.Books[o.Contract],o)end
+  if o.Type=="Limit"and not o.Queued and not(engine.Accounts[o.Owner].Player and snapshot.Version<9)then engine:_rest(engine.Books[o.Contract],o)end
  end
  local population=setmetatable({Engine=engine,Config=config},Participants)
  for key,value in pairs(snapshot.Population)do if key~="RandomState"then population[key]=clone(value)end end
@@ -178,9 +191,18 @@ function Checkpoint.Restore(snapshot,currentConfig)
  end
  for _,key in ipairs(order) do if added[key] then population:AddMarket(key) end end
  if upgradeMakers then population:EnsureMakers(currentConfig.ContractOrder,config.MakersPerInstrument) end
+ if upgradeScalpers then population:EnsureScalpers(currentConfig.ContractOrder,config.ScalpersPerInstrument) end
+ if upgradeReserves then population:EnsureReserves(currentConfig.ContractOrder);population:RefreshReservePolicy()end
  -- Lifetime trading stats (no format change): rebuilt once from saved history for older accounts,
  -- reconciled against the ledger for all others. Idempotent across repeated restores.
  local now=os.time()
+ -- Older settlement added every fill separately to large balances, accumulating sub-cent
+ -- floating-point drift. Rebuild only tiny discrepancies from the existing capital/P&L ledger;
+ -- larger differences still fail Audit. New settlement derives Balance from that ledger.
+ for _,id in ipairs(engine.AccountOrder)do local a=engine.Accounts[id]
+  local gap=a.Balance-a.Base-a.Realized
+  if a.Base>=1e9 and math.abs(gap)<.005 then a.Balance=a.Base+a.Realized end
+ end
  for _,id in ipairs(engine.AccountOrder) do local a=engine.Accounts[id] if a.Player then TradeStats.Reconcile(engine,a,now) end end
  -- Required migration, not optional leaderboard work: any failure aborts restore before saving.
  require(script.Parent.FundedAccounts).new(engine,require(game.ReplicatedStorage.MarketReign.ProgressionConfig),currentConfig)

@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-05",
+  "finding": "The previous reserve implementation displayed six simultaneous 100,000-contract base quotes, increasing with depth. Large funded capital should instead support modest displayed quotes replenished over time.",
+  "sources": [
+    {
+      "title": "CME: COMEX Gold Futures and Options, APAC Liquidity",
+      "url": "https://www.cmegroup.com/education/articles-and-reports/comex-gold-futures-and-options-a-look-at-apac-liquidity",
+      "period": "February 2020, active April 2020 gold contract",
+      "facts": {
+        "wholeDayMeanDepthByLevel": [
+          12,
+          21,
+          22,
+          24,
+          24
+        ],
+        "reportedCumulativeFiveLevelDepth": 103
+      },
+      "limitation": "Historical illustration; not a current depth target for every market or session."
+    },
+    {
+      "title": "CME: Reassessing Liquidity Beyond Order Book Depth",
+      "url": "https://www.cmegroup.com/articles/2025/reassessing-liquidity-beyond-order-book-depth.html",
+      "period": "2025",
+      "finding": "Depth, traded volume and execution impact are different measures. Replenishment and fill quality matter alongside a resting snapshot."
+    },
+    {
+      "title": "CME Liquidity Tool",
+      "url": "https://www.cmegroup.com/liquiditytool",
+      "finding": "Depth and execution cost must be evaluated by product, time window and order size. Authenticated current datasets were not accessed."
+    },
+    {
+      "title": "CME: Hidden Quantity order functionality",
+      "url": "https://www.cmegroup.com/tools-information/lookups/advisories/electronic-trading/20081113.html",
+      "finding": "Documented futures support for displaying part of a larger order and refreshing the displayed part after execution.",
+      "limitation": "Historical functionality reference. This implementation submits new finite quotes; it does not implement native exchange iceberg order semantics."
+    }
+  ],
+  "implementation": {
+    "baseContractsPerReserveQuote": {
+      "BX": 24,
+      "BT": 4,
+      "BG": 3
+    },
+    "makersPerInstrument": 6,
+    "sizeVariation": [
+      0.7,
+      1.3
+    ],
+    "depthGrowthPerLevel": 0.15,
+    "adjacentTickOffsets": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "capitalAndInventory": "Existing funded reserve balances and inventory retained; only actual submitted child quotes appear in depth.",
+    "migration": "Withdraw obsolete reserve quotes, retain positions and account balances, schedule modest replacements without trading during restore.",
+    "fairness": "Divide each market's execution allowance among waiting owners before applying per-owner and depth limits."
+  },
+  "limits": [
+    "These are simulation calibration choices, not measured current CME averages.",
+    "Displayed levels aggregate many participants; uneven levels and occasional large orders can be legitimate.",
+    "Large player limit orders remain genuine visible orders; this change targets artificial bot walls, not falsifying the depth display.",
+    "Realistic displayed depth means large parent orders may remain queued much longer. Billion-dollar balances do not guarantee immediate execution.",
+    "CapacityTests intentionally use an oversized synthetic liquidity fixture to test arithmetic and queue ceilings; they do not measure the new production fill speed."
+  ]
+}

@@ -630,7 +630,7 @@ function UI.Mount(gui,options)
   if max and qty>max then
    fail("Order too large. Available now: "..max.." "..s.Contract.." contracts.");effect(paths,"Error");return false
   end
-  local ok,msg,tab,requestId=session:Place(s.Contract,dir,qty,orderType,price,s.StopOn and s.StopDollars or nil,s.TargetOn and s.TargetDollars or nil)
+  local ok,msg,tab,requestId=session:Place(s.Contract,dir,qty,orderType,price,s.StopOn and s.StopDollars or nil,s.TargetOn and s.TargetDollars or nil,s.Execution or "Immediate")
   if ok then
    s.Error=nil;s.Tab=orderType=="Market"and tab or"Orders";s.Sheet=false
    local pending={Id=requestId,Direction=dir,At=os.clock()};s.PendingOrder=pending
@@ -827,8 +827,9 @@ function UI.Mount(gui,options)
      glossy(button(row,"Close"..d.Contract,"CLOSE",w-67,3,59,40,function()close(d.Contract)end,C.Raised,C.Text,12),"Pink"):SetAttribute("Sound","Open")
     elseif s.Tab=="Orders"then
      text(row,"Description",d.Contract.." · "..d.Kind,14,7,w-108,24,13,C.Text,M)
-     text(row,"Price",Market.Number(d.Price).." · "..d.Quantity.." contracts",14,35,w-112,27,12,C.Muted,N)
-     glossy(button(row,"Cancel"..d.Id..(d.Protection or""),"Cancel",w-96,18,82,44,function()local ok,message=session:Cancel(d.Id,d.Protection);if ok then toast("Cancelling order…","info")else fail(message)end end,C.Raised,C.Text,13),"Navy").Border.Color=C.Cyan
+     text(row,"Price",(d.Queued and "Executing"or d.Type=="Market"and"Market"or Market.Number(d.Price)).." · "..d.Quantity.." remaining",14,35,w-112,27,12,C.Muted,N)
+     local cancel=glossy(button(row,"Cancel"..d.Id..(d.Protection or""),d.Closing and "Closing"or "Cancel",w-96,18,82,44,function()if d.Closing then return end local ok,message=session:Cancel(d.Id,d.Protection);if ok then toast("Cancelling order…","info")else fail(message)end end,C.Raised,C.Text,13),"Navy");cancel.Border.Color=C.Cyan
+     if d.Closing then cancel:SetAttribute("Disabled",true);cancel.Active=false;cancel.Selectable=false end
     else
      text(row,"Description",d.Contract.." · "..d.Quantity.." contracts",14,9,w-124,24,13,C.Text,M)
      text(row,"Pnl",Market.Signed(d.Pnl),w-119,9,105,24,14,d.Pnl>=0 and C.Green or C.Red,N,RIGHT)
@@ -847,15 +848,17 @@ function UI.Mount(gui,options)
     local row=frame(list,"Row"..i,0,(i-1)*39,w,39,C.Panel);rule(row,0,0,w,C.Grid)
     local vals,positive
     if s.Tab=="Positions"then positive=session:Pnl(d)>=0;vals={d.Contract,d.Direction>0 and"BUY"or"SELL",tostring(d.Quantity),Market.Number(d.Entry),Market.Signed(session:Pnl(d))}
-    elseif s.Tab=="Orders"then vals={d.Contract.."Z26",d.Kind,tostring(d.Quantity),Market.Number(d.Price),d.Status or "Working"}
+    elseif s.Tab=="Orders"then vals={d.Contract.."Z26",d.Kind,tostring(d.Quantity),d.Type=="Market"and"Market"or Market.Number(d.Price),d.Status or "Working"}
     else positive=d.Pnl>=0;vals={d.Contract.."Z26",tostring(d.Quantity),Market.Number(d.Entry),Market.Number(d.Exit),Market.Signed(d.Pnl),d.Time}end
     for j,value in ipairs(vals)do text(row,"Cell"..j,value,14+fractions[j]*(w-28),2,(w-28)*(j==5 and .23 or .17)-7,35,11,j==5 and positive~=nil and(positive and C.Green or C.Red)or C.Text,j>=3 and N or M)end
     if s.Tab~="History"then
      local positions=s.Tab=="Positions"
-     local b=glossy(button(row,"Action"..i,positions and"CLOSE"or"Cancel",14+.85*(w-28),5,(w-28)*.15-10,29,function()
+    local b=glossy(button(row,"Action"..i,positions and"CLOSE"or d.Closing and"Closing"or"Cancel",14+.85*(w-28),5,(w-28)*.15-10,29,function()
+     if not positions and d.Closing then return end
       if positions then close(d.Contract)else local ok,message=session:Cancel(d.Id,d.Protection);if ok then toast("Cancelling order…","info")else fail(message)end end
      end,C.Raised,C.Text,12),positions and"Pink"or"Navy")
      if positions then b:SetAttribute("Sound","Open")else b.Border.Color=C.Cyan end
+     if not positions and d.Closing then b:SetAttribute("Disabled",true);b.Active=false;b.Selectable=false end
     end
    end
   end
@@ -1046,6 +1049,14 @@ function UI.Mount(gui,options)
   yy+=46
   local hint=sidebarText(p,"OrderExplanation",s.Type=="Market"and"Trades now at available prices"or"Trades at your price or better",pad,yy,iw,20,narrow and 12 or 13,C.Muted);hint.TextXAlignment=CENTER
   hint.TextWrapped=true;yy+=30
+  heading("ExecutionLabel","Execution",yy);yy+=26
+  local modes=frame(p,"ExecutionMode",pad,yy,iw,38,C.Bg,p.ZIndex);modes.BackgroundTransparency=1
+  for i,mode in ipairs({{"Immediate","Standard"},{"Sliced","In slices"}})do
+   gameControl(button(modes,mode[1],mode[2],(i-1)*(iw+8)/2,0,(iw-8)/2,38,function()s.Execution=mode[1];s.Error=nil;refresh()end,C.Panel,C.Text,15,modes.ZIndex),(s.Execution or "Immediate")==mode[1])
+  end
+  yy+=42
+  local detail=s.Execution=="Sliced"and "Fills gradually. Cancel the remainder in Orders."or s.Type=="Market"and "Fills now within execution limits; unfilled quantity is cancelled."or "Matches now when possible; eligible remainder rests at your limit."
+  local executionHint=sidebarText(p,"ExecutionExplanation",detail,pad,yy,iw,40,12,C.Muted);executionHint.TextWrapped=true;yy+=46
   if s.Type=="Limit"then
    heading("LimitLabel","Limit price",yy);yy+=28
    local tick=Market.Contracts[s.Contract].Tick
@@ -1137,13 +1148,13 @@ function UI.Mount(gui,options)
   return part("SL","Stop").." · "..part("TP","Target")
  end
  local function quantityCaption()
-  return s.Type=="Limit"and("Qty · Limit "..Market.Number(s.Limit))or"Quantity"
+  return (s.Type=="Limit"and("Qty · Limit "..Market.Number(s.Limit))or"Quantity")..(s.Execution=="Sliced"and " · Sliced"or "")
  end
  -- Retained dock refreshes are only safe while everything the dock displays is unchanged.
  local function dockKey()
   local held=session.Positions[s.Contract]
   return table.concat({held and(tostring(held.Id)..":"..held.Direction..":"..held.Quantity)or"flat",tostring(s.PendingClose and s.PendingClose.Contract),
-   tostring(s.PendingOrder and s.PendingOrder.Direction),s.Type,tostring(s.Limit),riskSummary()},"|")
+   tostring(s.PendingOrder and s.PendingOrder.Direction),s.Type,s.Execution or "Immediate",tostring(s.Limit),riskSummary()},"|")
  end
  -- Shown only while the selected market has an open position: side, quantity, live P&L and Close.
  local function positionBar(p,x,y,w,h)
@@ -2104,7 +2115,8 @@ function UI.Mount(gui,options)
     if not triggersSeen.Ids[t.Id]then
      triggersSeen.Ids[t.Id]=true
      local what=(t.Direction>0 and"Stop buy "or"Stop sell ")..t.Quantity.." "..t.Contract.." @ "..Market.Number(t.Price)
-     if t.Ok then toast(what.." triggered · filled "..t.Filled.." @ "..Market.Number(t.Average or t.Price),"success");if fx then fx:Play("Success")end
+     if t.Queued then s.Tab="Orders";toast(what.." triggered · "..t.Filled.." filled, "..t.Remaining.." queued. View or cancel in Orders.","info")
+     elseif t.Ok then toast(what.." triggered · filled "..t.Filled.." @ "..Market.Number(t.Average or t.Price),"success");if fx then fx:Play("Success")end
      else fail(what.." triggered but was not filled: "..tostring(t.Message or"no liquidity"))end
     end
    end
@@ -2204,7 +2216,9 @@ function UI.Mount(gui,options)
     elseif reply.Kind=="Start"or reply.Kind=="Restart"then fx:Play("Success")
     elseif reply.Kind=="Cancel"or reply.Kind=="AmendProtection"then fx:Play("Select")end
    end
-   if reply.Ok and reply.Result and(reply.Result.Filled or 0)>0 then s.Tab="Positions"end
+   if reply.Ok and reply.Result then
+    if reply.Result.Queued then s.Tab="Orders"elseif(reply.Result.Filled or 0)>0 then s.Tab="Positions"end
+   end
    local pf=session.Portfolio
    if reply.Kind=="Start"then
     s.Starting=nil
@@ -2212,10 +2226,13 @@ function UI.Mount(gui,options)
    elseif (reply.Kind=="Restart"or reply.Kind=="ResetAccount")and reply.Ok then
     s.Overlay=nil;blownQueue={};s.Screen="Trade";s.Nav="Trade"
    end
-   -- Successful orders update the workspace without covering it with execution reports.
-   -- Rejections still explain why the requested trade could not be placed.
+   -- Full fills and accepted working orders stay quiet; incomplete fills must explain
+   -- why the position differs from the requested quantity, including cancelled remainders.
    if reply.Ok and(reply.Kind=="Place"or order)then
-    s.Toast=nil;refresh()
+    local result=reply.Result
+    if result and (result.Queued or (result.Cancelled or 0)>0 or (result.Filled or 0)>0 and (result.Remaining or 0)>0) then
+     toast(reply.Message,"info")
+    else s.Toast=nil;refresh()end
    elseif reply.Ok and reply.Kind=="Close"and reply.Result and(reply.Result.Filled or 0)>0 then
     refresh() -- The matching TradeClosed event supplies the one close notification.
    elseif reply.Kind~="Flag"or not reply.Ok then
@@ -2224,15 +2241,21 @@ function UI.Mount(gui,options)
   end))
   -- Events include any that arrived before the workspace mounted (e.g. a depletion while away).
   local announcedRank=session.Portfolio and session.Portfolio.RankId
+  local depletedAccounts={}
   session:OnEvent(function(event)
    if not alive then return end
    if event.Kind=="Depleted"then
+    depletedAccounts[event.Tier]=true
+    -- Remove an already-visible close card and invalidate its delayed follow-up.
+    if s.ToastPnl~=nil then toastId+=1;s.Toast=nil;s.ToastPnl=nil;s.ToastFollowup=nil end
     table.insert(blownQueue,{Tier=event.Tier,Event=event.Event})
     if fx then fx:Play("Error")end
     if s.Overlay~="Blown"then s.Overlay=nil;s.ProtectionDraft=nil;nextBlown()end
     refresh();return
    end
    if event.Kind=="TradeClosed" then
+    local account=tierRow(event.Account)
+    if event.Reason=="Account depleted"or depletedAccounts[event.Account]or account and account.Depleted then return end
     local pnl=event.Pnl or 0
     local notices={}
     local rewards=event.Rewards or {}

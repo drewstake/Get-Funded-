@@ -569,7 +569,9 @@ if not overlaps and py>=top+10 and py<=bottom-10 then text(plot,"PriceAxis",Mark
     local moving=adjustment and adjustment.Field==field
     local title=field=="Stop"and(mobile and"SL "or"STOP LOSS ")or(mobile and"TP "or"TAKE PROFIT ")
     local suffix=moving and(adjustment.RequestId and" ..."or" *")or""
-    level(n,(editable and"↕ "or"")..title..Market.Signed((n-held.Entry)*held.Quantity*c.Multiplier*held.Direction)..suffix,
+    local closing=held.Triggered==(field=="Stop"and "Stop loss"or "Take profit")
+    local value=closing and (mobile and "closing "or "Closing ")..held.Quantity or Market.Signed((n-held.Entry)*held.Quantity*c.Multiplier*held.Direction)
+    level(n,(editable and"↕ "or"")..title..value..suffix,
      field=="Stop"and C.Red or C.Green,mobile and 116 or 198,editable and field or nil)
    end
   end
@@ -834,11 +836,13 @@ function View:PaintCrosshair(plot,g)
  local function hex(c3)return string.format("#%02X%02X%02X",math.round(c3.R*255),math.round(c3.G*255),math.round(c3.B*255))end
  local v=hex(color) local m=hex(C.Muted)
  local change=recent.Open~=0 and(recent.Close-recent.Open)/recent.Open*100 or 0
- local body=string.format('<font color="%s">O</font> <font color="%s">%s</font>  <font color="%s">H</font> <font color="%s">%s</font>  <font color="%s">L</font> <font color="%s">%s</font>  <font color="%s">C</font> <font color="%s">%s</font>  <font color="%s">%+.2f%%</font>',
-  m,v,Market.Number(recent.Open),m,v,Market.Number(recent.High),m,v,Market.Number(recent.Low),m,v,Market.Number(recent.Close),v,change)
+ local volume=Market.Number(recent.Volume or 0):gsub("%.00$", "")
+ local body=string.format('<font color="%s">O</font> <font color="%s">%s</font>  <font color="%s">H</font> <font color="%s">%s</font>  <font color="%s">L</font> <font color="%s">%s</font>  <font color="%s">C</font> <font color="%s">%s</font>  <font color="%s">Volume</font> <font color="%s">%s</font>  <font color="%s">%+.2f%%</font>',
+  m,v,Market.Number(recent.Open),m,v,Market.Number(recent.High),m,v,Market.Number(recent.Low),m,v,Market.Number(recent.Close),m,v,volume,v,change)
  readout=text(plot,"OHLC",body,12,4,g.W-24-(g.Mobile and 0 or 190),22,g.Mobile and 12 or 14,C.Muted,ctx.B,nil,7)
  readout.RichText=true;readout.TextTruncate=Enum.TextTruncate.AtEnd
  readout.Visible=not g.Mobile or candle~=nil
+ -- Show the active rectangle lock separately from the usual magnet feedback.
  -- Show the active rectangle lock separately from the usual magnet feedback.
  if self.RectangleLockTime~=nil and not g.Mobile then
   local badge=frame(plot,"RectangleLockBadge",g.Left+6,g.Top+g.Height-28,196,22,C.Raised,7);ctx.round(badge,11);ctx.stroke(badge,C.Cyan)
@@ -951,8 +955,17 @@ function View:Began(ev)
    end
   end
  end
- -- Stop and target labels keep priority over drawing tools.
+ -- The position label can create or replace either protection. Its own rectangle
+ -- wins over nearby protection lines so a tight stop cannot steal the gesture.
  local held=session.Positions[s.Contract]
+ local entry=self.EntryMarker
+ if kind~=MB3 and entry and held and not held.Triggered and not self.Pending and not self.OrderPending
+  and x>=entry.X and x<=entry.X+entry.W and y>=entry.Y and y<=entry.Y+entry.H then
+  start("Protection",{FromEntry=true,Creating=true,Key=g.Key,Contract=s.Contract,Base=session.AccountKey,Id=held.Id,
+   Original=held.Entry,Price=held.Entry,Entry=held.Entry,Quantity=held.Quantity,Direction=held.Direction,Stop=held.Stop,Target=held.Target})
+  self.Ctx.Root:SetAttribute("DraggingProtection","Create");return
+ end
+ -- Stop and target labels keep priority over drawing tools.
  if kind~=MB3 and held and not held.Triggered and not self.Pending then
   local chosen,distance=nil,math.huge
   for _,hit in ipairs(g.ProtectionHits)do
@@ -965,13 +978,6 @@ function View:Began(ev)
    start("Protection",{Field=chosen,Key=g.Key,Contract=s.Contract,Base=session.AccountKey,Id=held.Id,Original=held[chosen],Price=held[chosen]})
    self.Ctx.Root:SetAttribute("DraggingProtection",chosen);return
   end
- end
- local entry=self.EntryMarker
- if kind~=MB3 and entry and held and not held.Triggered and (not held.Stop or not held.Target) and not self.Pending and not self.OrderPending
-  and x>=entry.X and x<=entry.X+entry.W and y>=entry.Y and y<=entry.Y+entry.H then
-  start("Protection",{Creating=true,Key=g.Key,Contract=s.Contract,Base=session.AccountKey,Id=held.Id,
-   Original=held.Entry,Price=held.Entry,Entry=held.Entry,Quantity=held.Quantity,Direction=held.Direction,Stop=held.Stop,Target=held.Target})
-  self.Ctx.Root:SetAttribute("DraggingProtection","Create");return
  end
  if self.Pending or self.OrderPending then return end
  if kind==MB3 then start("Pan");return end
@@ -1042,9 +1048,9 @@ function View:Changed(ev)
  elseif d.Kind=="Protection"or d.Kind=="Order"then
   local Market=self.Ctx.Market local tick=Market.Contracts[d.Contract].Tick
   d.Price=math.max(tick,Market.Snap(d.Original-delta.Y/d.Height*(d.View.High-d.View.Low),d.Contract))
-  if d.Creating then
+  if d.FromEntry then
    local field=Tools.ProtectionField(d.Direction,d.Entry,d.Price)
-   d.Field=field and not d[field] and field or nil
+   d.Field=field;d.ExpectedPrice=field and d[field]or nil;d.Creating=d.ExpectedPrice==nil
    self.Ctx.Root:SetAttribute("DraggingProtection",d.Field or "Unavailable")
   end
  elseif self.Geometry then
@@ -1123,7 +1129,7 @@ function View:Finish(commit)
   if commit and d.Moved and d.Price~=d.Original and d.Field then
    local ok,message,_,requestId
    if d.Creating then ok,message,_,requestId=self.Ctx.Session:CreateProtection(d.Contract,d.Id,d.Field,d.Price,d.Quantity)
-   else ok,message,_,requestId=self.Ctx.Session:AmendProtection(d.Contract,d.Id,d.Field,d.Price,d.Original)end
+   else ok,message,_,requestId=self.Ctx.Session:AmendProtection(d.Contract,d.Id,d.Field,d.Price,d.FromEntry and d.ExpectedPrice or d.Original,d.FromEntry and d.Quantity or nil)end
    if ok then
     d.RequestId=requestId;self.Pending=d
     task.delay(10,function()
@@ -1226,8 +1232,8 @@ function View:OnMarketUpdate()
  if d and d.Kind=="Protection"then
   local held=session.Positions[d.Contract]
   if session.AccountKey~=d.Base or not held or held.Id~=d.Id or held.Triggered
-   or d.Creating and (held.Quantity~=d.Quantity or held.Entry~=d.Entry or held.Stop~=d.Stop or held.Target~=d.Target)
-   or not d.Creating and held[d.Field]~=d.Original then
+   or d.FromEntry and (held.Quantity~=d.Quantity or held.Entry~=d.Entry or held.Stop~=d.Stop or held.Target~=d.Target)
+   or not d.FromEntry and held[d.Field]~=d.Original then
    self:Finish(false);message="Position or protection changed. Drag cancelled."
   end
  end

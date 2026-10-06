@@ -34,17 +34,17 @@ function Tests.Run()
  local report={} local function test(name,fn)
   local ok,result=pcall(fn)table.insert(report,{Name=name,Passed=ok,Detail=ok and result or tostring(result)})
  end
- test("Fresh markets have ten makers without increasing traders or whales",function()
+ test("Fresh markets retain makers, ordinary traders and whales alongside scalpers",function()
   local e=Engine.new(Default,4102)local p=Participants.new(e)
   assert(Default.MakersPerInstrument==10 and Default.ParticipantsPerInstrument==36 and Default.WhalesPerInstrument==3)
   for _,key in ipairs(Default.ContractOrder) do
-   local makers,traders,whales=0,0,0
+   local makers,traders,whales,scalpers=0,0,0,0
    for _,a in ipairs(p.Agents) do if a.Key==key then
-    if a.Kind=="Maker" then makers+=1 elseif a.Kind=="Whale" then whales+=1 else traders+=1 end
+    if a.Kind=="Maker" then makers+=1 elseif a.Kind=="Whale" then whales+=1 elseif a.Kind=="Scalper" then scalpers+=1 elseif a.Kind~="Reserve"then traders+=1 end
    end end
-   assert(makers==10 and traders==36 and whales==3,key.." population differs")
+   assert(makers==10 and traders==36 and whales==3 and scalpers==Default.ScalpersPerInstrument,key.." population differs")
   end
-  e:Audit();return "10 makers, 36 ordinary traders and 3 whales per active market"
+  e:Audit();return "10 makers, 36 ordinary traders, 3 whales and 18 scalpers per active market"
  end)
  test("Older worlds gain makers once, preserving the tape, accounts and retired markets",function()
   local old=clone(Default);old.MakersPerInstrument=5;old.MakerPopulationVersion=nil

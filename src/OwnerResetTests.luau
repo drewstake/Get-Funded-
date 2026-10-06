@@ -23,10 +23,16 @@ local function fresh()
  return e,f,p
 end
 local function trade(e,id,pnl)
+ for _,owner in ipairs(e.AccountOrder)do e:CancelAll(owner,"BX")end -- Do not orphan live reserve orders when replacing this fixture's book.
  local b=e.Books.BX;b.Last=24000;b.Reference=24000;b.Bids={};b.Asks={}
+ b.FairReference=b.Last
+ Liquidity.Offer(e,"BX",-1,100,b.Last*b.Spec.Tick) -- Preserve depth around the one-contract accounting fixture.
  assert(Liquidity.Submit(e,id,{Contract="BX",Direction=1,Quantity=1,Type="Market"}))
+ e:CancelAll("fixture:liquidity:BX:-1","BX")
  b.Last+=pnl/(b.Spec.Multiplier*b.Spec.Tick)
+ b.FairReference=b.Last;Liquidity.Offer(e,"BX",1,100,b.Last*b.Spec.Tick)
  assert(Liquidity.Submit(e,id,{Contract="BX",Direction=-1,Quantity=1,Type="Market",ReduceOnly=true}))
+ Liquidity.Offer(e,"BX",-1,100,(b.Last+1)*b.Spec.Tick)
  e:Audit()
 end
 local function store()
